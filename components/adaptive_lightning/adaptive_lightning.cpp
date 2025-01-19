@@ -45,12 +45,54 @@ void AdaptiveLightningComponent::update() {
   float mireds = calc_color_temperature(now.timestamp, sunrise->timestamp, sunset->timestamp, min_ct_, max_ct_);
   ESP_LOGI(TAG, "Setting color temperature %.3f", mireds);
 
+  // Remember last requested color temperature, so we can detect external changes
+  last_requested_color_temp_ = mireds;
+
   auto call = light_->make_call();
   call.set_color_temperature(mireds);
   if (transition_length_ > 0) {
     call.set_transition_length_if_supported(transition_length_);
   }
   call.perform();
+}
+
+void AdaptiveLightningComponent::write_state(bool state) {
+  if (this->state != state) {
+    this->publish_state(state);
+    this->update();
+  }
+}
+
+void AdaptiveLightningComponent::handle_light_state_change() {
+  if (light_ == nullptr)
+    return;
+
+  bool current_state = light_->remote_values.is_on();
+
+  // Check if light was previously off and is now on
+  if (!previous_light_state_ && current_state && this->restore_mode == switch_::SWITCH_ALWAYS_ON) {
+    // Get current color temperature from light
+    float current_temp = light_->remote_values.get_color_temperature();
+
+    // Skip check on first update
+    if (last_requested_color_temp_ > 0 && std::fabs(current_temp - last_requested_color_temp_) > 1) {
+      // Temperature differs from what we last set (allowing 1 mired tolerance)
+      ESP_LOGI(
+          TAG,
+          "Color temperature changed externally (current: %.3f, last requested: %.3f), disabling adaptive lighting",
+          current_temp, last_requested_color_temp_);
+      this->write_state(false);
+    } else if (!this->state) {
+      // Enable the switch
+      this->write_state(true);
+    } else {
+      // If already enabled, just update
+      this->update();
+    }
+  }
+
+  // Update previous state for next time
+  previous_light_state_ = current_state;
 }
 
 // Helper function to compute coefficients 'a' and 'b' for the tanh function.

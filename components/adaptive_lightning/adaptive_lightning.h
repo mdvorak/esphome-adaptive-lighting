@@ -11,7 +11,12 @@ namespace adaptive_lightning {
 
 class AdaptiveLightningComponent : public PollingComponent, public switch_::Switch {
 public:
-  void setup() override {}
+  void setup() override {
+    if (light_ != nullptr) {
+      previous_light_state_ = light_->remote_values.is_on();
+      light_->add_new_remote_values_callback([this]() { handle_light_state_change(); });
+    }
+  }
 
   void set_sun(sun::Sun *sun) { sun_ = sun; }
   void set_light(light::LightState *light) { light_ = light; }
@@ -25,12 +30,7 @@ public:
 
   void update() override;
 
-  void write_state(bool state) override {
-    if (this->state != state) {
-      this->publish_state(state);
-      this->update();
-    }
-  }
+  void write_state(bool state) override;
 
   static float calc_color_temperature(const time_t now, const time_t sunrise, const time_t sunset, float min_ct,
                                       float max_ct);
@@ -43,6 +43,10 @@ protected:
   float sunrise_elevation_{-0.83333};
   float sunset_elevation_{-0.83333};
   uint32_t transition_length_{0};
+  bool previous_light_state_{false};
+  float last_requested_color_temp_{0};
+
+  void handle_light_state_change();
 };
 
 } // namespace adaptive_lightning
