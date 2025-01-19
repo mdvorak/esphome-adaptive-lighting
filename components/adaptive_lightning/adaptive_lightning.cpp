@@ -90,8 +90,8 @@ static float scaledTanh(float x, float x1, float x2, float y1, float y2, float m
 }
 
 // This method is loosely based on https://github.com/basnijholt/adaptive-lighting
-static float AdaptiveLightningComponent::calc_color_temperature(const time_t now, const time_t sunrise,
-                                                                const time_t sunset, float min_ct, float max_ct) {
+float AdaptiveLightningComponent::calc_color_temperature(const time_t now, const time_t sunrise, const time_t sunset,
+                                                         float min_ct, float max_ct) {
   // If before sunrise or after sunset, default to min_ct
   // If between sunrise and sunset, apply scaledTanh to get a smoother
   // transition.
