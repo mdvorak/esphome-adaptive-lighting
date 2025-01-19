@@ -53,6 +53,8 @@ void AdaptiveLightningComponent::update() {
   ESP_LOGD(TAG, "Setting color temperature %.3f", mireds);
   auto call = light_->make_call();
   call.set_color_temperature(mireds);
+  // add brightness to the effect, otherwise it might not get recalculated properly
+  call.set_brightness(light_->remote_values.get_brightness());
   if (transition_length_ > 0) {
     call.set_transition_length_if_supported(transition_length_);
   }
