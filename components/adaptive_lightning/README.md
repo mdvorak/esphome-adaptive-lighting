@@ -56,6 +56,7 @@ light:
     warm_white: ledc_warm
     cold_white_color_temperature: 6500 K
     warm_white_color_temperature: 2700 K
+    constant_brightness: true
 
 sun:
   latitude: !secret latitude
