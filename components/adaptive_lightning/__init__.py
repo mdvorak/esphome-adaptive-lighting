@@ -39,7 +39,8 @@ ADAPTIVE_LIGHTNING_SCHEMA = cv.Schema({
     cv.Optional(CONF_SUNRISE_ELEVATION, default=sun.DEFAULT_ELEVATION): elevation,
     cv.Optional(CONF_SUNSET_ELEVATION, default=sun.DEFAULT_ELEVATION): elevation,
     cv.Optional(CONF_TRANSITION_LENGTH): cv.positive_time_period_milliseconds,
-}).extend(switch.switch_schema(default_restore_mode="ALWAYS_ON")).extend(cv.polling_component_schema("60s"))
+}).extend(switch.switch_schema(default_restore_mode="ALWAYS_ON", icon="mdi:blur-linear")).extend(
+    cv.polling_component_schema("60s"))
 
 # Main schema that allows multiple components
 CONFIG_SCHEMA = cv.All(cv.ensure_list(ADAPTIVE_LIGHTNING_SCHEMA))
