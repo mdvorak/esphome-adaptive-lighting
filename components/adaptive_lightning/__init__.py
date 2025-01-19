@@ -34,8 +34,8 @@ ADAPTIVE_LIGHTNING_SCHEMA = cv.Schema({
     cv.GenerateID(): cv.declare_id(AdaptiveLightningComponent),
     cv.GenerateID(CONF_SUN_ID): cv.use_id(sun.Sun),
     cv.Required(CONF_LIGHT_ID): cv.use_id(light.LightState),
-    cv.Required(CONF_COLD_WHITE_COLOR_TEMPERATURE, "color_temperature"): cv.color_temperature,
-    cv.Required(CONF_WARM_WHITE_COLOR_TEMPERATURE, "color_temperature"): cv.color_temperature,
+    cv.Optional(CONF_COLD_WHITE_COLOR_TEMPERATURE): cv.color_temperature,
+    cv.Optional(CONF_WARM_WHITE_COLOR_TEMPERATURE): cv.color_temperature,
     cv.Optional(CONF_SUNRISE_ELEVATION, default=sun.DEFAULT_ELEVATION): elevation,
     cv.Optional(CONF_SUNSET_ELEVATION, default=sun.DEFAULT_ELEVATION): elevation,
     cv.Optional(CONF_TRANSITION_LENGTH): cv.positive_time_period_milliseconds,
@@ -56,8 +56,10 @@ async def to_code(config):
 
         cg.add(var.set_light(light_component))
         cg.add(var.set_sun(sun_component))
-        cg.add(var.set_cold_white_temperature(conf[CONF_COLD_WHITE_COLOR_TEMPERATURE]))
-        cg.add(var.set_warm_white_temperature(conf[CONF_WARM_WHITE_COLOR_TEMPERATURE]))
+        if CONF_COLD_WHITE_COLOR_TEMPERATURE in conf:
+            cg.add(var.set_cold_white_temperature(conf[CONF_COLD_WHITE_COLOR_TEMPERATURE]))
+        if CONF_WARM_WHITE_COLOR_TEMPERATURE in conf:
+            cg.add(var.set_warm_white_temperature(conf[CONF_WARM_WHITE_COLOR_TEMPERATURE]))
         cg.add(var.set_sunrise_elevation(conf[CONF_SUNRISE_ELEVATION]))
         cg.add(var.set_sunset_elevation(conf[CONF_SUNSET_ELEVATION]))
         if CONF_TRANSITION_LENGTH in conf:

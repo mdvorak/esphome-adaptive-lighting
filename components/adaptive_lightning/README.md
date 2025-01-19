@@ -5,8 +5,6 @@ Adaptive lighting component for ESPHome. It sets the light color temperature bas
 ```yaml
 adaptive_lightning:
   - light_id: cw_light
-    cold_white_color_temperature: 6500 K
-    warm_white_color_temperature: 2700 K
 ```
 
 ## Configuration variables
@@ -18,11 +16,11 @@ adaptive_lightning:
   Used for enable switch in the frontend.
 - **light_id** (*Required*, [ID](https://esphome.io/guides/configuration-types.html#id)): The light to control.
   It must support color temperature.
-- **cold_white_color_temperature** (*Required*, float): The color temperature
+- **cold_white_color_temperature** (*Optional*, float): The color temperature
   (in [mireds](https://en.wikipedia.org/wiki/Mired) or Kelvin) of the cold white channel. This can differ from the
   configuration of the light, but it still must be within the supported range.
-- **warm_white_color_temperature** (*Required*, float): The color temperature
-  (in [mireds](https://en.wikipedia.org/wiki/Mired) or Kelvin) of the warm white channel. This can differ from the warm
+- **warm_white_color_temperature** (*Optional*, float): The color temperature
+  (in [mireds](https://en.wikipedia.org/wiki/Mired) or Kelvin) of the warm white channel. This can differ from the
   configuration of the light, but it still must be within the supported range.
 - **update_interval** (*Optional*, [Time](https://esphome.io/guides/configuration-types#config-time)): The interval in
   which the color temperature is updated. Default is `60s`.

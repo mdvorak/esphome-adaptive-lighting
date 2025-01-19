@@ -10,6 +10,25 @@ static const char *TAG = "adaptive_lightning";
 namespace esphome {
 namespace adaptive_lightning {
 
+void AdaptiveLightningComponent::setup() {
+  if (light_ != nullptr) {
+    light_->add_new_remote_values_callback([this]() { handle_light_state_change(); });
+    light_->add_new_target_state_reached_callback([this]() { handle_target_state_reached(); });
+
+    auto traits = light_->get_traits();
+    if (min_mireds_ <= 0) {
+      min_mireds_ = traits.get_min_mireds();
+    }
+    if (max_mireds_ <= 0) {
+      max_mireds_ = traits.get_max_mireds();
+    }
+    ESP_LOGD(TAG, "Color temperature range: %.3f - %.3f", min_mireds_, max_mireds_);
+  }
+  if (this->restore_mode == switch_::SWITCH_ALWAYS_ON) {
+    this->publish_state(true);
+  }
+}
+
 void AdaptiveLightningComponent::update() {
   if (light_ == nullptr || sun_ == nullptr) {
     ESP_LOGW(TAG, "Light or Sun component not set!");
@@ -17,12 +36,12 @@ void AdaptiveLightningComponent::update() {
   }
 
   if (!this->state) {
-    ESP_LOGD("adaptive_lightning", "Update skipped - automatic updates disabled");
+    ESP_LOGD(TAG, "Update skipped - automatic updates disabled");
     return;
   }
 
   if (!light_->remote_values.is_on()) {
-    ESP_LOGD("adaptive_lightning", "Update skipped - light is off");
+    ESP_LOGD(TAG, "Update skipped - light is off");
     return;
   }
 
@@ -42,7 +61,7 @@ void AdaptiveLightningComponent::update() {
   }
 
   // Calculate
-  float mireds = calc_color_temperature(now.timestamp, sunrise->timestamp, sunset->timestamp, min_ct_, max_ct_);
+  float mireds = calc_color_temperature(now.timestamp, sunrise->timestamp, sunset->timestamp, min_mireds_, max_mireds_);
   if (mireds == last_requested_color_temp_) {
     // This is mandatory to avoid infinite loops when the light is updated
     ESP_LOGD(TAG, "Skipping update, color temperature is the same as last requested");
@@ -117,7 +136,7 @@ void AdaptiveLightningComponent::handle_target_state_reached() {
 // Helper function to compute coefficients 'a' and 'b' for the tanh function.
 static std::pair<float, float> findAB(float x1, float x2, float y1, float y2) {
   // This function mimics the scaled_tanh approach from color_and_brightness.py.
-  // Keep it simple: we want color temperature -> [min_ct, max_ct].
+  // Keep it simple: we want color temperature -> [min_mireds, max_mireds].
   // We compute "a" and "b" so that tanh covers the range from y1 to y2 over
   // [x1, x2].
   const float eps = 0.00001f;
@@ -138,30 +157,30 @@ static std::pair<float, float> findAB(float x1, float x2, float y1, float y2) {
 // Main scaledTanh function computing the tanh-based interpolation.
 // x, x1, x2 specify your input range for time (or some other parameter),
 // y1, y2 let you customize which portion of tanh range you use.
-static float scaledTanh(float x, float x1, float x2, float y1, float y2, float min_ct, float max_ct) {
+static float scaledTanh(float x, float x1, float x2, float y1, float y2, float min_val, float max_val) {
   // Obtain the 'a' and 'b' values from findAB().
   auto ab = findAB(x1, x2, y1, y2);
 
   // Basic tanh interpolation: map tanh(...) from [-1,1] to [0,1], then scale to
-  // [min_ct, max_ct].
+  // [min_val, max_val].
   float t = std::tanh(ab.first * (x - ab.second));
-  // Map result from [-1..1] to [0..1], then to [min_ct..max_ct].
-  return min_ct + (max_ct - min_ct) * 0.5f * (t + 1.0f);
+  // Map result from [-1..1] to [0..1], then to [min_val..max_val].
+  return min_val + (max_val - min_val) * 0.5f * (t + 1.0f);
 }
 
 // This method is loosely based on https://github.com/basnijholt/adaptive-lighting
 float AdaptiveLightningComponent::calc_color_temperature(const time_t now, const time_t sunrise, const time_t sunset,
-                                                         float min_ct, float max_ct) {
-  // If before sunrise or after sunset, default to min_ct
+                                                         float min_mireds, float max_mireds) {
+  // If before sunrise or after sunset, default to min_mireds
   // If between sunrise and sunset, apply scaledTanh to get a smoother
   // transition.
   if (now < sunrise || now > sunset) {
-    return max_ct;
+    return max_mireds;
   } else {
     // We do a simple mirrored approach:
     // y1 = 0.05 (very warm at sunrise), y2 = 0.95 (very cool near midday),
     // then it transitions back. This is just an example input to scaledTanh.
-    return scaledTanh(now, sunrise, sunset, 0.05f, 0.95f, min_ct, max_ct);
+    return scaledTanh(now, sunrise, sunset, 0.05f, 0.95f, min_mireds, max_mireds);
   }
 }
 
