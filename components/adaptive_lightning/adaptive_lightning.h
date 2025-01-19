@@ -16,6 +16,9 @@ public:
       light_->add_new_remote_values_callback([this]() { handle_light_state_change(); });
       light_->add_new_target_state_reached_callback([this]() { handle_target_state_reached(); });
     }
+    if (this->restore_mode == switch_::SWITCH_ALWAYS_ON) {
+      this->publish_state(true);
+    }
   }
 
   void set_sun(sun::Sun *sun) { sun_ = sun; }
