@@ -35,8 +35,7 @@ external_components:
   - source: github://mdvorak/esphome-components
 
 adaptive_lightning:
-  - id: cw_adaptive
-    light_id: cw_light
+  - light_id: cw_light
     name: "Adaptive Lightning"
     cold_white_color_temperature: 6500 K
     warm_white_color_temperature: 2700 K
@@ -57,10 +56,6 @@ light:
     warm_white: ledc_warm
     cold_white_color_temperature: 6500 K
     warm_white_color_temperature: 2700 K
-    on_turn_on:
-      then:
-        - switch.turn_on: cw_adaptive
-        - component.update: cw_adaptive
 
 sun:
   latitude: !secret latitude
