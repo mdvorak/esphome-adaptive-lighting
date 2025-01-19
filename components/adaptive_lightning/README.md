@@ -49,7 +49,6 @@ output:
     # Set the pin and frequency
   - platform: ledc
     id: ledc_warm
-    frequency: 19531Hz
     # Set the pin and frequency
 
 light:

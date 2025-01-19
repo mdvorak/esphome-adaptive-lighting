@@ -11,4 +11,5 @@ external_components:
 
 ## Components
 
-- [Adaptive Lightning](components/adaptive_lightning/#readme) - 
+- [Adaptive Lightning](components/adaptive_lightning/#readme) - Adjust the color temperature of a light based on the
+  sun's position
