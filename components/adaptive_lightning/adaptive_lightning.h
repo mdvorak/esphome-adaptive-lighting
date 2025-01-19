@@ -13,7 +13,6 @@ class AdaptiveLightningComponent : public PollingComponent, public switch_::Swit
 public:
   void setup() override {
     if (light_ != nullptr) {
-      previous_light_state_ = light_->remote_values.is_on();
       light_->add_new_remote_values_callback([this]() { handle_light_state_change(); });
       light_->add_new_target_state_reached_callback([this]() { handle_target_state_reached(); });
     }
@@ -32,6 +31,8 @@ public:
   void update() override;
 
   void write_state(bool state) override;
+
+  void force_next_update() { last_requested_color_temp_ = 0; }
 
   static float calc_color_temperature(const time_t now, const time_t sunrise, const time_t sunset, float min_ct,
                                       float max_ct);

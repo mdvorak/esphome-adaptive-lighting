@@ -67,8 +67,10 @@ void AdaptiveLightningComponent::write_state(bool state) {
       ESP_LOGD(TAG, "Adaptive lighting disabled");
     }
 
+    this->force_next_update();
     this->publish_state(state);
     this->update();
+    this->force_next_update(); // Force update again, to update color after turn-on transition
   }
 }
 
@@ -103,6 +105,7 @@ void AdaptiveLightningComponent::handle_target_state_reached() {
   if (light_ == nullptr)
     return;
 
+  // We rely on previous_light_state_ was set in handle_light_state_change
   if (previous_light_state_ && this->state) {
     // Update color temperature if adaptive lighting is enabled
     this->update();
