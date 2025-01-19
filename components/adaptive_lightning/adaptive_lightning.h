@@ -15,6 +15,7 @@ public:
     if (light_ != nullptr) {
       previous_light_state_ = light_->remote_values.is_on();
       light_->add_new_remote_values_callback([this]() { handle_light_state_change(); });
+      light_->add_new_target_state_reached_callback([this]() { handle_target_state_reached(); });
     }
   }
 
@@ -47,6 +48,7 @@ protected:
   float last_requested_color_temp_{0};
 
   void handle_light_state_change();
+  void handle_target_state_reached();
 };
 
 } // namespace adaptive_lightning
