@@ -6,7 +6,8 @@ from esphome.const import (
     CONF_LIGHT_ID,
     CONF_COLD_WHITE_COLOR_TEMPERATURE,
     CONF_WARM_WHITE_COLOR_TEMPERATURE,
-    CONF_TRANSITION_LENGTH
+    CONF_TRANSITION_LENGTH,
+    CONF_SPEED
 )
 
 DEPENDENCIES = ['sun', 'light']
@@ -38,7 +39,8 @@ ADAPTIVE_LIGHTNING_SCHEMA = cv.Schema({
     cv.Optional(CONF_WARM_WHITE_COLOR_TEMPERATURE): cv.color_temperature,
     cv.Optional(CONF_SUNRISE_ELEVATION, default=sun.DEFAULT_ELEVATION): elevation,
     cv.Optional(CONF_SUNSET_ELEVATION, default=sun.DEFAULT_ELEVATION): elevation,
-    cv.Optional(CONF_TRANSITION_LENGTH): cv.positive_time_period_milliseconds,
+    cv.Optional(CONF_TRANSITION_LENGTH, default="3s"): cv.positive_time_period_milliseconds,
+    cv.Optional(CONF_SPEED, default=2): cv.positive_float,
 }).extend(switch.switch_schema(default_restore_mode="ALWAYS_ON", icon="mdi:blur-linear")).extend(
     cv.polling_component_schema("60s"))
 
@@ -64,5 +66,7 @@ async def to_code(config):
         cg.add(var.set_sunset_elevation(conf[CONF_SUNSET_ELEVATION]))
         if CONF_TRANSITION_LENGTH in conf:
             cg.add(var.set_transition_length(conf[CONF_TRANSITION_LENGTH]))
+        if CONF_SPEED in conf:
+            cg.add(var.set_speed(conf[CONF_SPEED]))
 
         await switch.register_switch(var, conf)
