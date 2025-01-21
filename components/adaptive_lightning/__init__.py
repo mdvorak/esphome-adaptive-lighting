@@ -39,7 +39,7 @@ ADAPTIVE_LIGHTNING_SCHEMA = cv.Schema({
     cv.Optional(CONF_WARM_WHITE_COLOR_TEMPERATURE): cv.color_temperature,
     cv.Optional(CONF_SUNRISE_ELEVATION, default=sun.DEFAULT_ELEVATION): elevation,
     cv.Optional(CONF_SUNSET_ELEVATION, default=sun.DEFAULT_ELEVATION): elevation,
-    cv.Optional(CONF_TRANSITION_LENGTH, default="3s"): cv.positive_time_period_milliseconds,
+    cv.Optional(CONF_TRANSITION_LENGTH, default="1s"): cv.positive_time_period_milliseconds,
     cv.Optional(CONF_SPEED, default=2): cv.positive_float,
 }).extend(switch.switch_schema(default_restore_mode="ALWAYS_ON", icon="mdi:blur-linear")).extend(
     cv.polling_component_schema("60s"))

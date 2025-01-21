@@ -26,7 +26,7 @@ adaptive_lightning:
 - **update_interval** (*Optional*, [Time](https://esphome.io/guides/configuration-types#config-time)): The interval in
   which the color temperature is updated. Default is `60s`.
 - **transition_duration** (*Optional*, [Time](https://esphome.io/guides/configuration-types#config-time)): The duration
-  of the transition between color temperatures. Default is `3s`.
+  of the transition between color temperatures. Default is `1s`.
 - **restore_mode** (*Optional*, RestoreMode): The restore mode to use. Default is `ALWAYS_ON`.
 
 ## Example
