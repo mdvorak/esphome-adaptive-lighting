@@ -22,7 +22,7 @@ adaptive_lightning:
 - **warm_white_color_temperature** (*Optional*, float): The color temperature
   (in [mireds](https://en.wikipedia.org/wiki/Mired) or Kelvin) of the warm white channel. This can differ from the
   configuration of the light, but it still must be within the supported range.
-- **speed** (*Optional*, float): The speed of the transition between color temperatures. Default is `2.0`.
+- **speed** (*Optional*, float): The speed of the transition between color temperatures. Default is `1.0`.
 - **update_interval** (*Optional*, [Time](https://esphome.io/guides/configuration-types#config-time)): The interval in
   which the color temperature is updated. Default is `60s`.
 - **transition_duration** (*Optional*, [Time](https://esphome.io/guides/configuration-types#config-time)): The duration
