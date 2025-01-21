@@ -61,7 +61,7 @@ void AdaptiveLightningComponent::update() {
   }
 
   // Calculate
-  float mireds = calc_color_temperature(now.timestamp, sunrise->timestamp, sunset->timestamp, min_mireds_, max_mireds_);
+  float mireds = calc_color_temperature(now.timestamp, sunrise->timestamp, sunset->timestamp);
   if (mireds == last_requested_color_temp_) {
     // This is mandatory to avoid infinite loops when the light is updated
     ESP_LOGD(TAG, "Skipping update, color temperature is the same as last requested");
@@ -133,55 +133,68 @@ void AdaptiveLightningComponent::handle_target_state_reached() {
   }
 }
 
-// Helper function to compute coefficients 'a' and 'b' for the tanh function.
-static std::pair<float, float> findAB(float x1, float x2, float y1, float y2) {
-  // This function mimics the scaled_tanh approach from color_and_brightness.py.
-  // Keep it simple: we want color temperature -> [min_mireds, max_mireds].
-  // We compute "a" and "b" so that tanh covers the range from y1 to y2 over
-  // [x1, x2].
-  const float eps = 0.00001f;
-
-  // If x2 and x1 are extremely close, return default (a=1, b=0) to avoid
-  // divide-by-zero.
-  if (std::fabs(x2 - x1) < eps) {
-    return std::make_pair(1.0f, 0.0f);
-  }
-
-  // a = [atanh(2*y2-1) - atanh(2*y1-1)] / (x2 - x1)
-  // b = x1 - [atanh(2*y1-1) / a]
-  float a_val = (std::atanh(2.0f * y2 - 1.0f) - std::atanh(2.0f * y1 - 1.0f)) / (x2 - x1);
-  float b_val = x1 - (std::atanh(2.0f * y1 - 1.0f) / a_val);
-  return std::make_pair(a_val, b_val);
+// x in [0, 1]
+static float smooth_transition(float x, float y_min, float y_max, float speed = 1) {
+  // This influences transition curve and speed
+  constexpr double y1 = 0.00001;
+  constexpr double y2 = 0.999;
+  static float a = (std::atanh(2 * y2 - 1) - std::atanh(2 * y1 - 1));
+  static float b = -(std::atanh(2 * y1 - 1) / a);
+  auto x_adj = std::pow(std::fabs(1 - x * 2), speed);
+  return y_min + (y_max - y_min) * 0.5 * (std::tanh(a * (x_adj - b)) + 1);
 }
 
-// Main scaledTanh function computing the tanh-based interpolation.
-// x, x1, x2 specify your input range for time (or some other parameter),
-// y1, y2 let you customize which portion of tanh range you use.
-static float scaledTanh(float x, float x1, float x2, float y1, float y2, float min_val, float max_val) {
-  // Obtain the 'a' and 'b' values from findAB().
-  auto ab = findAB(x1, x2, y1, y2);
-
-  // Basic tanh interpolation: map tanh(...) from [-1,1] to [0,1], then scale to
-  // [min_val, max_val].
-  float t = std::tanh(ab.first * (x - ab.second));
-  // Map result from [-1..1] to [0..1], then to [min_val..max_val].
-  return min_val + (max_val - min_val) * 0.5f * (t + 1.0f);
-}
-
-// This method is loosely based on https://github.com/basnijholt/adaptive-lighting
 float AdaptiveLightningComponent::calc_color_temperature(const time_t now, const time_t sunrise, const time_t sunset,
-                                                         float min_mireds, float max_mireds) {
-  // If before sunrise or after sunset, default to min_mireds
-  // If between sunrise and sunset, apply scaledTanh to get a smoother
-  // transition.
+                                                         float min_mireds, float max_mireds, float speed) {
   if (now < sunrise || now > sunset) {
     return max_mireds;
   } else {
-    // We do a simple mirrored approach:
-    // y1 = 0.05 (very warm at sunrise), y2 = 0.95 (very cool near midday),
-    // then it transitions back. This is just an example input to scaledTanh.
-    return scaledTanh(now, sunrise, sunset, 0.05f, 0.95f, min_mireds, max_mireds);
+    float position = float(now - sunrise) / float(sunset - sunrise);
+    return smooth_transition(position, min_mireds, max_mireds, speed);
   }
+}
+
+void AdaptiveLightningComponent::dump_config() {
+  if (light_ == nullptr || sun_ == nullptr) {
+    ESP_LOGW(TAG, "Light or Sun component not set!");
+    return;
+  }
+
+  // Get current timestamp
+  const auto now = sun_->get_time()->now();
+  // Calculate start of day, to get today's events, not next events
+  auto today = now;
+  today.hour = today.minute = today.second = 0;
+  today.recalc_timestamp_utc();
+
+  auto sunrise = sun_->sunrise(today, sunrise_elevation_);
+  auto sunset = sun_->sunset(today, sunset_elevation_);
+
+  if (!sunrise || !sunset) {
+    ESP_LOGW(TAG, "Could not determine sunrise or sunset");
+    return;
+  }
+
+  ESP_LOGI(TAG, "Today: %s", today.strftime("%x %X").c_str());
+  ESP_LOGI(TAG, "Sunrise: %s", sunrise->strftime("%x %X").c_str());
+  ESP_LOGI(TAG, "Sunset: %s", sunset->strftime("%x %X").c_str());
+  ESP_LOGI(TAG, "Sun elevation: %.3f", sun_->elevation());
+  ESP_LOGI(TAG, "Sunrise elevation: %.3f, sunset elevation: %.3f", sunrise_elevation_, sunset_elevation_);
+  ESP_LOGI(TAG, "Color temperature range: %.3f - %.3f", min_mireds_, max_mireds_);
+  ESP_LOGI(TAG, "Transition length: %d", transition_length_);
+
+  for (int i = 0; i < 24; i++) {
+    auto time = today;
+    time.hour = i;
+    time.recalc_timestamp_utc();
+    float mireds = calc_color_temperature(time.timestamp, sunrise->timestamp, sunset->timestamp);
+    ESP_LOGI(TAG, "Time: %s, Color temperature: %.3f", time.strftime("%x %X").c_str(), mireds);
+  }
+
+  ESP_LOGI(TAG, "Last requested color temperature: %.3f", last_requested_color_temp_);
+  ESP_LOGI(TAG, "State: %s", this->state ? "enabled" : "disabled");
+  ESP_LOGI(TAG, "Previous light state: %s", previous_light_state_ ? "on" : "off");
+  ESP_LOGI(TAG, "Current light state: %s", light_->remote_values.is_on() ? "on" : "off");
 }
 
 } // namespace adaptive_lightning
