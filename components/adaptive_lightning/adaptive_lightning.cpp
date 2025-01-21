@@ -62,7 +62,9 @@ void AdaptiveLightningComponent::update() {
 
   // Calculate
   float mireds = calc_color_temperature(now.timestamp, sunrise->timestamp, sunset->timestamp);
-  if (mireds == last_requested_color_temp_) {
+
+  // Compare if < 0.1 difference
+  if (std::fabs(mireds - last_requested_color_temp_) < 0.1) {
     // This is mandatory to avoid infinite loops when the light is updated
     ESP_LOGD(TAG, "Skipping update, color temperature is the same as last requested");
     return;
@@ -150,7 +152,9 @@ float AdaptiveLightningComponent::calc_color_temperature(const time_t now, const
     return max_mireds;
   } else {
     float position = float(now - sunrise) / float(sunset - sunrise);
-    return smooth_transition(position, min_mireds, max_mireds, speed);
+    float mireds = smooth_transition(position, min_mireds, max_mireds, speed);
+    // Round to one decimal place
+    return std::roundf(mireds * 10) / 10;
   }
 }
 
