@@ -1,6 +1,9 @@
 # Adaptive Lightning
 
-Adaptive lighting component for ESPHome. It sets the light color temperature based on the current position of the sun.
+Adaptive light component for ESPHome. It sets the light color temperature based on the current position of the sun.
+
+If the light color is adjusted manually, the adaptive lightning will be disabled until the light is turned off and on
+again. The adaptive lightning is also a switch, so it can be enabled or disabled manually, or by automation.
 
 ```yaml
 adaptive_lightning:
@@ -22,6 +25,8 @@ adaptive_lightning:
 - **warm_white_color_temperature** (*Optional*, float): The color temperature
   (in [mireds](https://en.wikipedia.org/wiki/Mired) or Kelvin) of the warm white channel. This can differ from the
   configuration of the light, but it still must be within the supported range.
+- **sunrise_elevation** (*Optional*, float): The elevation of the sun at sunrise. Default is `nautical` (`-12.0 deg`).
+- **sunset_elevation** (*Optional*, float): The elevation of the sun at sunset. Default is `nautical` (`-12.0 deg`).
 - **speed** (*Optional*, float): The speed of the transition between color temperatures. Default is `1.0`.
 - **update_interval** (*Optional*, [Time](https://esphome.io/guides/configuration-types#config-time)): The interval in
   which the color temperature is updated. Default is `60s`.
@@ -38,8 +43,10 @@ external_components:
 adaptive_lightning:
   - light_id: cw_light
     name: "Adaptive Lightning"
-    cold_white_color_temperature: 6500 K
+    cold_white_color_temperature: 6000 K
     warm_white_color_temperature: 2700 K
+    sunrise_elevation: -15.0 deg
+    sunset_elevation: -15.0 deg
 
 output:
   - platform: ledc
@@ -70,7 +77,7 @@ time:
 
 ## Credits
 
-* Loosely based on https://github.com/basnijholt/adaptive-lighting, thanks [basnijholt](https://github.com/basnijholt)!
+* Loosely based on https://github.com/basnijholt/adaptive-lightning, thanks [basnijholt](https://github.com/basnijholt)!
 
 ## License
 
