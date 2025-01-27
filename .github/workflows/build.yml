@@ -10,11 +10,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  adaptive_lightning:
-    name: Adaptive Lightning
+  adaptive_lighting:
+    name: Adaptive Lighting
     runs-on: ubuntu-latest
     env:
-      YAML_FILE: example_adaptive_lightning.yaml
+      YAML_FILE: example_adaptive_lighting.yaml
     steps:
     - uses: actions/checkout@v4
     - name: Create secrets.yaml

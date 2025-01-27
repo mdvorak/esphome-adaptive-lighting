@@ -1,16 +1,16 @@
-#include "adaptive_lightning.h"
+#include "adaptive_lighting.h"
 
 #include <cmath>
 #include <utility>
 
 #include "esphome/core/log.h"
 
-static const char *TAG = "adaptive_lightning";
+static const char *TAG = "adaptive_lighting";
 
 namespace esphome {
-namespace adaptive_lightning {
+namespace adaptive_lighting {
 
-void AdaptiveLightningComponent::setup() {
+void AdaptiveLightingComponent::setup() {
   if (light_ != nullptr) {
     light_->add_new_remote_values_callback([this]() { handle_light_state_change(); });
     light_->add_new_target_state_reached_callback([this]() { handle_target_state_reached(); });
@@ -29,7 +29,7 @@ void AdaptiveLightningComponent::setup() {
   }
 }
 
-void AdaptiveLightningComponent::update() {
+void AdaptiveLightingComponent::update() {
   if (light_ == nullptr || sun_ == nullptr) {
     ESP_LOGW(TAG, "Light or Sun component not set!");
     return;
@@ -82,7 +82,7 @@ void AdaptiveLightningComponent::update() {
   call.perform();
 }
 
-void AdaptiveLightningComponent::write_state(bool state) {
+void AdaptiveLightingComponent::write_state(bool state) {
   if (this->state != state) {
     if (state) {
       ESP_LOGD(TAG, "Adaptive lighting enabled");
@@ -97,7 +97,7 @@ void AdaptiveLightningComponent::write_state(bool state) {
   }
 }
 
-void AdaptiveLightningComponent::handle_light_state_change() {
+void AdaptiveLightingComponent::handle_light_state_change() {
   if (light_ == nullptr)
     return;
 
@@ -124,7 +124,7 @@ void AdaptiveLightningComponent::handle_light_state_change() {
   previous_light_state_ = current_state;
 }
 
-void AdaptiveLightningComponent::handle_target_state_reached() {
+void AdaptiveLightingComponent::handle_target_state_reached() {
   if (light_ == nullptr)
     return;
 
@@ -146,7 +146,7 @@ static float smooth_transition(float x, float y_min, float y_max, float speed = 
   return y_min + (y_max - y_min) * 0.5 * (std::tanh(a * (x_adj - b)) + 1);
 }
 
-float AdaptiveLightningComponent::calc_color_temperature(const time_t now, const time_t sunrise, const time_t sunset,
+float AdaptiveLightingComponent::calc_color_temperature(const time_t now, const time_t sunrise, const time_t sunset,
                                                          float min_mireds, float max_mireds, float speed) {
   if (now < sunrise || now > sunset) {
     return max_mireds;
@@ -158,7 +158,7 @@ float AdaptiveLightningComponent::calc_color_temperature(const time_t now, const
   }
 }
 
-void AdaptiveLightningComponent::dump_config() {
+void AdaptiveLightingComponent::dump_config() {
   if (light_ == nullptr || sun_ == nullptr) {
     ESP_LOGW(TAG, "Light or Sun component not set!");
     return;
@@ -201,5 +201,5 @@ void AdaptiveLightningComponent::dump_config() {
   ESP_LOGI(TAG, "Current light state: %s", light_->remote_values.is_on() ? "on" : "off");
 }
 
-} // namespace adaptive_lightning
+} // namespace adaptive_lighting
 } // namespace esphome
