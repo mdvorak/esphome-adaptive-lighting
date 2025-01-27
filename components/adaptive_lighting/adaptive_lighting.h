@@ -7,9 +7,9 @@
 #include "esphome/core/component.h"
 
 namespace esphome {
-namespace adaptive_lightning {
+namespace adaptive_lighting {
 
-class AdaptiveLightningComponent : public PollingComponent, public switch_::Switch {
+class AdaptiveLightingComponent : public PollingComponent, public switch_::Switch {
 public:
   void setup() override;
 
@@ -54,5 +54,5 @@ protected:
   void handle_target_state_reached();
 };
 
-} // namespace adaptive_lightning
+} // namespace adaptive_lighting
 } // namespace esphome

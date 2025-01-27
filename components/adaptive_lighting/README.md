@@ -1,12 +1,12 @@
-# Adaptive Lightning
+# Adaptive Lighting
 
-Adaptive light component for ESPHome. It sets the light color temperature based on the current position of the sun.
+Adaptive lighting component for ESPHome. It sets the light color temperature based on the current position of the sun.
 
-If the light color is adjusted manually, the adaptive lightning will be disabled until the light is turned off and on
-again. The adaptive lightning is also a switch, so it can be enabled or disabled manually, or by automation.
+If the light color is adjusted manually, the adaptive lighting will be disabled until the light is turned off and on
+again. The adaptive lighting is also a switch, so it can be enabled or disabled manually, or by automation.
 
 ```yaml
-adaptive_lightning:
+adaptive_lighting:
   - light_id: cw_light
 ```
 
@@ -40,9 +40,9 @@ adaptive_lightning:
 external_components:
   - source: github://mdvorak/esphome-components
 
-adaptive_lightning:
+adaptive_lighting:
   - light_id: cw_light
-    name: "Adaptive Lightning"
+    name: "Adaptive Lighting"
     cold_white_color_temperature: 6000 K
     warm_white_color_temperature: 2700 K
     sunrise_elevation: -15.0 deg
@@ -77,7 +77,7 @@ time:
 
 ## Credits
 
-* Loosely based on https://github.com/basnijholt/adaptive-lightning, thanks [basnijholt](https://github.com/basnijholt)!
+* Loosely based on https://github.com/basnijholt/adaptive-lighting, thanks [basnijholt](https://github.com/basnijholt)!
 
 ## License
 

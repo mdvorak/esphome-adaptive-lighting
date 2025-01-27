@@ -17,17 +17,16 @@ CONF_SUN_ID = 'sun_id'
 CONF_SUNRISE_ELEVATION = "sunrise_elevation"
 CONF_SUNSET_ELEVATION = "sunset_elevation"
 
-
-adaptive_lightning_ns = cg.esphome_ns.namespace('adaptive_lightning')
-AdaptiveLightningComponent = adaptive_lightning_ns.class_(
-    'AdaptiveLightningComponent',
+adaptive_lighting_ns = cg.esphome_ns.namespace('adaptive_lighting')
+AdaptiveLightingComponent = adaptive_lighting_ns.class_(
+    'AdaptiveLightingComponent',
     cg.PollingComponent,
     switch.Switch
 )
 
 # Schema for a single component
-ADAPTIVE_LIGHTNING_SCHEMA = cv.Schema({
-    cv.GenerateID(): cv.declare_id(AdaptiveLightningComponent),
+ADAPTIVE_LIGHTING_SCHEMA = cv.Schema({
+    cv.GenerateID(): cv.declare_id(AdaptiveLightingComponent),
     cv.GenerateID(CONF_SUN_ID): cv.use_id(sun.Sun),
     cv.Required(CONF_LIGHT_ID): cv.use_id(light.LightState),
     cv.Optional(CONF_COLD_WHITE_COLOR_TEMPERATURE): cv.color_temperature,
@@ -40,7 +39,7 @@ ADAPTIVE_LIGHTNING_SCHEMA = cv.Schema({
     cv.polling_component_schema("60s"))
 
 # Main schema that allows multiple components
-CONFIG_SCHEMA = cv.All(cv.ensure_list(ADAPTIVE_LIGHTNING_SCHEMA))
+CONFIG_SCHEMA = cv.All(cv.ensure_list(ADAPTIVE_LIGHTING_SCHEMA))
 
 
 async def to_code(config):

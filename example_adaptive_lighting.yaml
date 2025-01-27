@@ -24,9 +24,9 @@ wifi:
   ap:
     ssid: "${devicename}-AP"
 
-adaptive_lightning:
+adaptive_lighting:
   - light_id: cwww_light
-    name: "Adaptive Lightning"
+    name: "Adaptive Lighting"
 
 output:
   - platform: ledc
