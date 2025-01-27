@@ -18,11 +18,6 @@ CONF_SUNRISE_ELEVATION = "sunrise_elevation"
 CONF_SUNSET_ELEVATION = "sunset_elevation"
 
 
-def elevation(value):
-    value = cv.angle(value)
-    return cv.float_range(min=-180, max=180)(value)
-
-
 adaptive_lightning_ns = cg.esphome_ns.namespace('adaptive_lightning')
 AdaptiveLightningComponent = adaptive_lightning_ns.class_(
     'AdaptiveLightningComponent',
@@ -37,8 +32,8 @@ ADAPTIVE_LIGHTNING_SCHEMA = cv.Schema({
     cv.Required(CONF_LIGHT_ID): cv.use_id(light.LightState),
     cv.Optional(CONF_COLD_WHITE_COLOR_TEMPERATURE): cv.color_temperature,
     cv.Optional(CONF_WARM_WHITE_COLOR_TEMPERATURE): cv.color_temperature,
-    cv.Optional(CONF_SUNRISE_ELEVATION, default=sun.DEFAULT_ELEVATION): elevation,
-    cv.Optional(CONF_SUNSET_ELEVATION, default=sun.DEFAULT_ELEVATION): elevation,
+    cv.Optional(CONF_SUNRISE_ELEVATION, default="nautical"): sun.elevation,
+    cv.Optional(CONF_SUNSET_ELEVATION, default="nautical"): sun.elevation,
     cv.Optional(CONF_TRANSITION_LENGTH, default="1s"): cv.positive_time_period_milliseconds,
     cv.Optional(CONF_SPEED, default=1): cv.positive_float,
 }).extend(switch.switch_schema(default_restore_mode="ALWAYS_ON", icon="mdi:blur-linear")).extend(
