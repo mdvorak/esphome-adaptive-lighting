@@ -42,5 +42,6 @@ jobs:
       - name: Build
         run: esphome compile ${{ env.YAML_FILE }}
 
+      - run: pwd
       - run: ls -l
       - run: ls -l ~/
