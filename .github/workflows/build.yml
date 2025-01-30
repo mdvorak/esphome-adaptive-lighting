@@ -55,3 +55,6 @@ jobs:
 
       - name: Build
         run: esphome compile "$YAML_FILE"
+
+      - run: ls -la ${{ github.workspace }}/.pioenvs/
+      - run: ls -la ${{ github.workspace }}/.pioenvs/${{ env.DEVICE_NAME }}/
