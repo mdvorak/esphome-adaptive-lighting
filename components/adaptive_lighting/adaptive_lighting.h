@@ -28,7 +28,7 @@ public:
 
   void force_next_update() { last_requested_color_temp_ = 0; }
 
-  void dump_config();
+  void dump_config() override;
 
   float calc_color_temperature(const time_t now, const time_t sunrise, const time_t sunset) {
     return calc_color_temperature(now, sunrise, sunset, min_mireds_, max_mireds_, speed_);
