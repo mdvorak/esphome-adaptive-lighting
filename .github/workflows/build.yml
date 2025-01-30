@@ -13,33 +13,32 @@ jobs:
   adaptive_lighting:
     name: Adaptive Lighting
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/esphome/esphome
     env:
       YAML_FILE: example_adaptive_lighting.yaml
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - uses: actions/setup-python@v5
-      with:
-        python-version: 3.x
+      - name: Generate build files
+        run: |-
+          yq eval '.external_components[0].source = {"path": "components", "type": "local"}' -i $YAML_FILE
+          
+          echo "wifi_ssid: TEST" >> secrets.yaml
+          echo "wifi_password: testtest" >> secrets.yaml
+          
+          esphome config ${{ env.YAML_FILE }} > /tmp/out.yaml
 
-    - name: Install dependencies
-      run: pip install esphome
+      - uses: actions/cache@v4
+        with:
+          path: |-
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio-${{ hashFiles('/tmp/out.yaml') }}
 
-    - name: Generate build files
-      run: |-
-        yq eval '.external_components[0].source = {"path": "components", "type": "local"}' -i $YAML_FILE
-        
-        echo "wifi_ssid: TEST" >> secrets.yaml
-        echo "wifi_password: testtest" >> secrets.yaml
+      - name: Build
+        uses: esphome/build-action@v6
+        with:
+          yaml-file: ${{ env.YAML_FILE }}
 
-        esphome config ${{ env.YAML_FILE }} > /tmp/out.yaml
-
-    - uses: actions/cache@v4
-      with:
-        path: ~/.platformio/.cache
-        key: ${{ runner.os }}-pio-${{ hashFiles('/tmp/out.yaml') }}
-
-    - name: Build
-      uses: esphome/build-action@v6
-      with:
-        yaml-file: ${{ env.YAML_FILE }}
+      - run: ls -l
+      - run: ls -l .platformio
