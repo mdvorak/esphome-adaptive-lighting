@@ -24,6 +24,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set local component path
+        uses: mikefarah/yq@v4
+        with:
+          cmd: yq -i '.external_components[0].source = "./components"' ${{ env.YAML_FILE }}
+
+      - name: Prepare secrets
+        run: |-
+          echo "wifi_ssid: TEST" >> secrets.yaml
+          echo "wifi_password: testtest" >> secrets.yaml
+
       - name: Generate cache keys
         run: |-
           echo "ESPHOME_VER_HASH=$(esphome version | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
@@ -43,16 +53,6 @@ jobs:
         with:
           path: ${{ github.workspace }}/.esphome/build/**/*.o
           key: ${{ runner.os }}-build-${{ env.YAML_HASH }}
-
-      - name: Set local component path
-        uses: mikefarah/yq@v4
-        with:
-          cmd: yq -i '.external_components[0].source = "./components"' ${{ env.YAML_FILE }}
-
-      - name: Prepare secrets
-        run: |-
-          echo "wifi_ssid: TEST" >> secrets.yaml
-          echo "wifi_password: testtest" >> secrets.yaml
 
       - name: Build
         run: esphome compile "$YAML_FILE"
