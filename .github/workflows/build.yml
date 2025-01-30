@@ -13,18 +13,39 @@ jobs:
   adaptive_lighting:
     name: Adaptive Lighting
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/esphome/esphome
+      volumes:
+        - /github/home/.cache:/github/home/.cache
+        - /github/home/.platformio:/github/home/.platformio
     env:
       YAML_FILE: example_adaptive_lighting.yaml
+      DEVICE_NAME: adaptive-light
     steps:
-    - uses: actions/checkout@v4
-    - name: Create secrets.yaml
-      run: |-
-        echo "wifi_ssid: TEST" >> secrets.yaml
-        echo "wifi_password: testtest" >> secrets.yaml
-    - name: Set components path
-      run: |-
-        yq eval '.external_components[0].source = {"path": "components", "type": "local"}' -i $YAML_FILE
-    - name: Build
-      uses: esphome/build-action@v6
-      with:
-        yaml-file: ${{ env.YAML_FILE }}
+      - uses: actions/checkout@v4
+
+      - name: Set local component path
+        uses: mikefarah/yq@v4
+        with:
+          cmd: yq -i '.external_components[0].source = "./components"' ${{ env.YAML_FILE }}
+
+      - name: Prepare secrets
+        run: |-
+          echo "wifi_ssid: TEST" >> secrets.yaml
+          echo "wifi_password: testtest" >> secrets.yaml
+
+      - name: Generate cache key
+        run: |-
+          echo "ESPHOME_VER_HASH=$(esphome version | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |-
+            ~/.cache/pip
+            ~/.platformio/.cache
+            ~/.platformio/packages
+          key: ${{ runner.os }}-pio-${{ env.ESPHOME_VER_HASH }}
+
+      - name: Build
+        run: esphome compile "$YAML_FILE"
