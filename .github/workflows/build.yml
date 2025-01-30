@@ -20,11 +20,14 @@ jobs:
         - /github/home/.platformio:/github/home/.platformio
     env:
       YAML_FILE: example_adaptive_lighting.yaml
+      DEVICE_NAME: adaptive-light
     steps:
       - uses: actions/checkout@v4
 
-      - name: Generate cache key
-        run: echo "ESPHOME_VER_HASH=$(esphome version | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
+      - name: Generate cache keys
+        run: |-
+          echo "ESPHOME_VER_HASH=$(esphome version | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
+          echo "YAML_HASH=$(esphome validate $YAML_FILE | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
 
       - name: Cache dependencies
         uses: actions/cache@v4
@@ -33,14 +36,17 @@ jobs:
             ~/.cache/pip
             ~/.platformio/.cache
             ~/.platformio/packages
-          key: ${{ runner.os }}-${{ env.ESPHOME_VER_HASH }}
+          key: ${{ runner.os }}-pio-${{ env.ESPHOME_VER_HASH }}
 
-      - run: |-
-          du ~/.platformio/
+      - name: Cache build files
+        uses: actions/cache@v4
+        with:
+          path: .pioenvs/${{ env.DEVICE_NAME }}/**/*.o
+          key: ${{ runner.os }}-pioenvs-${{ env.YAML_HASH }}
 
       - name: Set local component path
         run: |-
-          sed -i 's|source: github://mdvorak/esphome-adaptive-lighting.*|source: ./components|' ${{ env.YAML_FILE }}
+          sed -i 's|source: github://mdvorak/esphome-adaptive-lighting.*|source: ./components|' "$YAML_FILE"
 
       - name: Prepare secrets
         run: |-
@@ -48,7 +54,4 @@ jobs:
           echo "wifi_password: testtest" >> secrets.yaml
 
       - name: Build
-        run: esphome compile ${{ env.YAML_FILE }}
-
-      - run: |-
-          du ~/.platformio/
+        run: esphome compile "$YAML_FILE"
