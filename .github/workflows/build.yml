@@ -36,9 +36,7 @@ jobs:
           key: ${{ runner.os }}-pio-${{ hashFiles('/tmp/out.yaml') }}
 
       - name: Build
-        uses: esphome/build-action@v6
-        with:
-          yaml-file: ${{ env.YAML_FILE }}
+        run: esphome run ${{ env.YAML_FILE }}
 
       - run: ls -l
       - run: ls -l .platformio
