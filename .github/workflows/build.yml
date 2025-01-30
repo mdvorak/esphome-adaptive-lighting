@@ -20,10 +20,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set local component path
+        run: |-
+          sed -i 's|source:.*|source: ./components|' ${{ env.YAML_FILE }}
+
       - name: Generate build files
         run: |-
-          yq eval '.external_components[0].source = {"path": "components", "type": "local"}' -i $YAML_FILE
-          
           echo "wifi_ssid: TEST" >> secrets.yaml
           echo "wifi_password: testtest" >> secrets.yaml
           
