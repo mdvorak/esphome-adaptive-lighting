@@ -34,6 +34,9 @@ jobs:
             ~/.platformio/.cache
           key: ${{ runner.os }}-${{ env.ESPHOME_VER_HASH }}
 
+      - run: |-
+          echo ~
+
       - name: Set local component path
         run: |-
           sed -i 's|source: github://mdvorak/esphome-adaptive-lighting.*|source: ./components|' ${{ env.YAML_FILE }}
@@ -45,3 +48,6 @@ jobs:
 
       - name: Build
         run: esphome compile ${{ env.YAML_FILE }}
+
+      - run: |-
+          ls -la ~/.platformio/
