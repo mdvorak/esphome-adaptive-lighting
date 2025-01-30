@@ -43,4 +43,4 @@ jobs:
         run: esphome compile ${{ env.YAML_FILE }}
 
       - run: ls -l
-      - run: ls -l .platformio
+      - run: ls -l ~/
