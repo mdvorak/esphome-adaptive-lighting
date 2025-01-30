@@ -180,24 +180,24 @@ void AdaptiveLightingComponent::dump_config() {
     return;
   }
 
-  ESP_LOGI(TAG, "Adaptive Lighting %s", ADAPTIVE_LIGHTING_VERSION);
-  ESP_LOGD(TAG, "Today: %s", today.strftime("%x %X").c_str());
-  ESP_LOGD(TAG, "Sunrise: %s", sunrise->strftime("%x %X").c_str());
-  ESP_LOGD(TAG, "Sunset: %s", sunset->strftime("%x %X").c_str());
-  ESP_LOGD(TAG, "Sun elevation: %.3f", sun_->elevation());
-  ESP_LOGD(TAG, "Sunrise elevation: %.3f, sunset elevation: %.3f", sunrise_elevation_, sunset_elevation_);
-  ESP_LOGD(TAG, "Color temperature range: %.3f - %.3f", min_mireds_, max_mireds_);
-  ESP_LOGD(TAG, "Transition length: %d", transition_length_);
+  ESP_LOGCONFIG(TAG, "Adaptive Lighting %s", ADAPTIVE_LIGHTING_VERSION);
+  ESP_LOGCONFIG(TAG, "Today: %s", today.strftime("%x %X").c_str());
+  ESP_LOGCONFIG(TAG, "Sunrise: %s", sunrise->strftime("%x %X").c_str());
+  ESP_LOGCONFIG(TAG, "Sunset: %s", sunset->strftime("%x %X").c_str());
+  ESP_LOGCONFIG(TAG, "Sun elevation: %.3f", sun_->elevation());
+  ESP_LOGCONFIG(TAG, "Sunrise elevation: %.3f, sunset elevation: %.3f", sunrise_elevation_, sunset_elevation_);
+  ESP_LOGCONFIG(TAG, "Color temperature range: %.3f - %.3f", min_mireds_, max_mireds_);
+  ESP_LOGCONFIG(TAG, "Transition length: %d", transition_length_);
 
   for (int i = 0; i < 24; i++) {
     auto time = today;
     time.hour = i;
     time.recalc_timestamp_utc();
     float mireds = calc_color_temperature(time.timestamp, sunrise->timestamp, sunset->timestamp);
-    ESP_LOGD(TAG, "Time: %s, Color temperature: %.3f", time.strftime("%x %X").c_str(), mireds);
+    ESP_LOGCONFIG(TAG, "Time: %s, Color temperature: %.3f", time.strftime("%x %X").c_str(), mireds);
   }
 
-  ESP_LOGD(TAG, "State: %s", this->state ? "enabled" : "disabled");
+  ESP_LOGCONFIG(TAG, "State: %s", this->state ? "enabled" : "disabled");
 }
 
 } // namespace adaptive_lighting
