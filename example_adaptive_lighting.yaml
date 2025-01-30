@@ -1,5 +1,5 @@
 substitutions:
-  devicename: cwww-light
+  devicename: adaptive-light
 
 esphome:
   name: "${devicename}"
