@@ -23,19 +23,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - run: env|sort
-      - run: echo "ESPHOME_VERSION=$(esphome version | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
+      - name: Generate cache key
+        run: echo "ESPHOME_VER_HASH=$(esphome version | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
 
-      - uses: actions/cache@v4
+      - name: Cache dependencies
+        uses: actions/cache@v4
         with:
           path: |-
             ~/.cache/pip
             ~/.platformio/.cache
-          key: ${{ runner.os }}-${{ env.ESPHOME_VERSION }}
+          key: ${{ runner.os }}-${{ env.ESPHOME_VER_HASH }}
 
       - name: Set local component path
         run: |-
-          sed -i 's|source:.*|source: ./components|' ${{ env.YAML_FILE }}
+          sed -i 's|source: github://mdvorak/esphome-adaptive-lighting.*|source: ./components|' ${{ env.YAML_FILE }}
 
       - name: Prepare secrets
         run: |-
@@ -44,7 +45,3 @@ jobs:
 
       - name: Build
         run: esphome compile ${{ env.YAML_FILE }}
-
-      - run: pwd
-      - run: ls -la
-      - run: ls -la ~/
