@@ -32,6 +32,7 @@ jobs:
           path: |-
             ~/.cache/pip
             ~/.platformio/.cache
+            ~/.platformio/packages
           key: ${{ runner.os }}-${{ env.ESPHOME_VER_HASH }}
 
       - run: |-
