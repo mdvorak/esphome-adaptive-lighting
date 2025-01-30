@@ -17,13 +17,24 @@ jobs:
       YAML_FILE: example_adaptive_lighting.yaml
     steps:
     - uses: actions/checkout@v4
+
     - name: Create secrets.yaml
       run: |-
         echo "wifi_ssid: TEST" >> secrets.yaml
         echo "wifi_password: testtest" >> secrets.yaml
+
     - name: Set components path
       run: |-
         yq eval '.external_components[0].source = {"path": "components", "type": "local"}' -i $YAML_FILE
+
+    - uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/pip
+          ~/.platformio/.cache
+        key: ${{ runner.os }}-pio-${{ hashFiles('.pioenvs/*/platformio.ini') }}
+        restore-keys: ${{ runner.os }}-pio
+
     - name: Build
       uses: esphome/build-action@v6
       with:
