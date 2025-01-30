@@ -1,4 +1,5 @@
 #include "adaptive_lighting.h"
+#include "adaptive_lighting_version.h"
 
 #include <cmath>
 #include <utility>
@@ -179,26 +180,24 @@ void AdaptiveLightingComponent::dump_config() {
     return;
   }
 
-  ESP_LOGI(TAG, "Today: %s", today.strftime("%x %X").c_str());
-  ESP_LOGI(TAG, "Sunrise: %s", sunrise->strftime("%x %X").c_str());
-  ESP_LOGI(TAG, "Sunset: %s", sunset->strftime("%x %X").c_str());
-  ESP_LOGI(TAG, "Sun elevation: %.3f", sun_->elevation());
-  ESP_LOGI(TAG, "Sunrise elevation: %.3f, sunset elevation: %.3f", sunrise_elevation_, sunset_elevation_);
-  ESP_LOGI(TAG, "Color temperature range: %.3f - %.3f", min_mireds_, max_mireds_);
-  ESP_LOGI(TAG, "Transition length: %d", transition_length_);
+  ESP_LOGI(TAG, "Adaptive Lighting %s", ADAPTIVE_LIGHTING_VERSION);
+  ESP_LOGD(TAG, "Today: %s", today.strftime("%x %X").c_str());
+  ESP_LOGD(TAG, "Sunrise: %s", sunrise->strftime("%x %X").c_str());
+  ESP_LOGD(TAG, "Sunset: %s", sunset->strftime("%x %X").c_str());
+  ESP_LOGD(TAG, "Sun elevation: %.3f", sun_->elevation());
+  ESP_LOGD(TAG, "Sunrise elevation: %.3f, sunset elevation: %.3f", sunrise_elevation_, sunset_elevation_);
+  ESP_LOGD(TAG, "Color temperature range: %.3f - %.3f", min_mireds_, max_mireds_);
+  ESP_LOGD(TAG, "Transition length: %d", transition_length_);
 
   for (int i = 0; i < 24; i++) {
     auto time = today;
     time.hour = i;
     time.recalc_timestamp_utc();
     float mireds = calc_color_temperature(time.timestamp, sunrise->timestamp, sunset->timestamp);
-    ESP_LOGI(TAG, "Time: %s, Color temperature: %.3f", time.strftime("%x %X").c_str(), mireds);
+    ESP_LOGD(TAG, "Time: %s, Color temperature: %.3f", time.strftime("%x %X").c_str(), mireds);
   }
 
-  ESP_LOGI(TAG, "Last requested color temperature: %.3f", last_requested_color_temp_);
-  ESP_LOGI(TAG, "State: %s", this->state ? "enabled" : "disabled");
-  ESP_LOGI(TAG, "Previous light state: %s", previous_light_state_ ? "on" : "off");
-  ESP_LOGI(TAG, "Current light state: %s", light_->remote_values.is_on() ? "on" : "off");
+  ESP_LOGD(TAG, "State: %s", this->state ? "enabled" : "disabled");
 }
 
 } // namespace adaptive_lighting
