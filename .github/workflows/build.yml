@@ -20,12 +20,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - run: env|sort
+      - run: echo "ESPHOME_VERSION=$(esphome version | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
+
       - uses: actions/cache@v4
         with:
           path: |-
             ~/.cache/pip
             ~/.platformio/.cache
-          key: ${{ runner.os }}-${{ hashFiles('/requirements.txt') }}
+          key: ${{ runner.os }}-${{ env.ESPHOME_VERSION }}
 
       - name: Set local component path
         run: |-
