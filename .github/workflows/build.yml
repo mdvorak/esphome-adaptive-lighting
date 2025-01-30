@@ -20,25 +20,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/cache@v4
+        with:
+          path: |-
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-${{ hashFiles('/requirements.txt') }}
+
       - name: Set local component path
         run: |-
           sed -i 's|source:.*|source: ./components|' ${{ env.YAML_FILE }}
 
-      - name: Generate build files
+      - name: Prepare secrets
         run: |-
           echo "wifi_ssid: TEST" >> secrets.yaml
           echo "wifi_password: testtest" >> secrets.yaml
-          
-          esphome config ${{ env.YAML_FILE }} > /tmp/out.yaml
-
-      - uses: actions/cache@v4
-        with:
-          path: |-
-            ~/.platformio/.cache
-          key: ${{ runner.os }}-pio-${{ hashFiles('/tmp/out.yaml') }}
 
       - name: Build
-        run: esphome run ${{ env.YAML_FILE }}
+        run: esphome compile ${{ env.YAML_FILE }}
 
       - run: ls -l
       - run: ls -l .platformio
