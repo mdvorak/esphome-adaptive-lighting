@@ -35,7 +35,7 @@ jobs:
           key: ${{ runner.os }}-${{ env.ESPHOME_VER_HASH }}
 
       - run: |-
-          echo ~
+          du ~/.platformio/
 
       - name: Set local component path
         run: |-
@@ -50,4 +50,4 @@ jobs:
         run: esphome compile ${{ env.YAML_FILE }}
 
       - run: |-
-          ls -la ~/.platformio/
+          du ~/.platformio/
