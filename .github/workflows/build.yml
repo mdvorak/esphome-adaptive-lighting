@@ -34,10 +34,9 @@ jobs:
           echo "wifi_ssid: TEST" >> secrets.yaml
           echo "wifi_password: testtest" >> secrets.yaml
 
-      - name: Generate cache keys
+      - name: Generate cache key
         run: |-
           echo "ESPHOME_VER_HASH=$(esphome version | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
-          echo "YAML_HASH=$(esphome validate $YAML_FILE | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
 
       - name: Cache dependencies
         uses: actions/cache@v4
@@ -47,12 +46,6 @@ jobs:
             ~/.platformio/.cache
             ~/.platformio/packages
           key: ${{ runner.os }}-pio-${{ env.ESPHOME_VER_HASH }}
-
-      - name: Cache build files
-        uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}/.esphome/build/**/*.o
-          key: ${{ runner.os }}-build-${{ env.YAML_HASH }}
 
       - name: Build
         run: esphome compile "$YAML_FILE"
