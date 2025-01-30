@@ -45,8 +45,9 @@ jobs:
           key: ${{ runner.os }}-build-${{ env.YAML_HASH }}
 
       - name: Set local component path
-        run: |-
-          sed -i 's|source: github://mdvorak/esphome-adaptive-lighting.*|source: ./components|' "$YAML_FILE"
+        uses: mikefarah/yq@v4
+        with:
+          cmd: yq -i '.external_components[0].source = "./components"' ${{ env.YAML_FILE }}
 
       - name: Prepare secrets
         run: |-
