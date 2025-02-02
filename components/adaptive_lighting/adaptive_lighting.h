@@ -51,7 +51,6 @@ protected:
   float last_requested_color_temp_{0};
 
   void handle_light_state_change();
-  void handle_target_state_reached();
 };
 
 } // namespace adaptive_lighting
