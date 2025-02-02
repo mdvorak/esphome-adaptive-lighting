@@ -14,7 +14,6 @@ namespace adaptive_lighting {
 void AdaptiveLightingComponent::setup() {
   if (light_ != nullptr) {
     light_->add_new_remote_values_callback([this]() { handle_light_state_change(); });
-    light_->add_new_target_state_reached_callback([this]() { handle_target_state_reached(); });
 
     auto traits = light_->get_traits();
     if (min_mireds_ <= 0) {
@@ -23,7 +22,6 @@ void AdaptiveLightingComponent::setup() {
     if (max_mireds_ <= 0) {
       max_mireds_ = traits.get_max_mireds();
     }
-    ESP_LOGD(TAG, "Color temperature range: %.3f - %.3f", min_mireds_, max_mireds_);
   }
   if (this->restore_mode == switch_::SWITCH_ALWAYS_ON) {
     this->publish_state(true);
@@ -38,11 +36,6 @@ void AdaptiveLightingComponent::update() {
 
   if (!this->state) {
     ESP_LOGD(TAG, "Update skipped - automatic updates disabled");
-    return;
-  }
-
-  if (!light_->remote_values.is_on()) {
-    ESP_LOGD(TAG, "Update skipped - light is off");
     return;
   }
 
@@ -77,7 +70,7 @@ void AdaptiveLightingComponent::update() {
   call.set_color_temperature(mireds);
   // add brightness to the effect, otherwise it might not get recalculated properly
   call.set_brightness(light_->remote_values.get_brightness());
-  if (transition_length_ > 0) {
+  if (transition_length_ > 0 && light_->remote_values.is_on()) {
     call.set_transition_length_if_supported(transition_length_);
   }
   call.perform();
@@ -94,7 +87,6 @@ void AdaptiveLightingComponent::write_state(bool state) {
     this->force_next_update();
     this->publish_state(state);
     this->update();
-    this->force_next_update(); // Force update again, to update color after turn-on transition
   }
 }
 
@@ -115,25 +107,15 @@ void AdaptiveLightingComponent::handle_light_state_change() {
           "Color temperature changed externally (current: %.3f, last requested: %.3f), disabling adaptive lighting",
           current_temp, last_requested_color_temp_);
       this->write_state(false);
-    } else if (!previous_light_state_ && !this->state && // Light was just turned on
-               this->restore_mode == switch_::SWITCH_ALWAYS_ON) {
-      // Enable the switch when light turns on if restore mode is ALWAYS_ON
-      this->write_state(true);
     }
+  }
+  // Light was just turned off
+  else if (previous_light_state_ && !this->state && this->restore_mode == switch_::SWITCH_ALWAYS_ON) {
+    // Enable adaptive lightning when light turns back on if restore mode is ALWAYS_ON
+    this->write_state(true);
   }
 
   previous_light_state_ = current_state;
-}
-
-void AdaptiveLightingComponent::handle_target_state_reached() {
-  if (light_ == nullptr)
-    return;
-
-  // We rely on previous_light_state_ was set in handle_light_state_change
-  if (previous_light_state_ && this->state) {
-    // Update color temperature if adaptive lighting is enabled
-    this->update();
-  }
 }
 
 // x in [0, 1]
@@ -148,7 +130,7 @@ static float smooth_transition(float x, float y_min, float y_max, float speed = 
 }
 
 float AdaptiveLightingComponent::calc_color_temperature(const time_t now, const time_t sunrise, const time_t sunset,
-                                                         float min_mireds, float max_mireds, float speed) {
+                                                        float min_mireds, float max_mireds, float speed) {
   if (now < sunrise || now > sunset) {
     return max_mireds;
   } else {
