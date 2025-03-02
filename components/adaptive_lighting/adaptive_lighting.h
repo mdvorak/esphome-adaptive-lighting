@@ -42,6 +42,8 @@ protected:
   light::LightState *light_{nullptr};
   float min_mireds_{0};
   float max_mireds_{0};
+  float light_min_mireds_{0};
+  float light_max_mireds_{0};
   float sunrise_elevation_{-0.83333};
   float sunset_elevation_{-0.83333};
   uint32_t transition_length_{0};
