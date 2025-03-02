@@ -16,11 +16,14 @@ void AdaptiveLightingComponent::setup() {
     light_->add_new_remote_values_callback([this]() { handle_light_state_change(); });
 
     auto traits = light_->get_traits();
+    light_min_mireds_ = traits.get_min_mireds();
+    light_max_mireds_ = traits.get_max_mireds();
+
     if (min_mireds_ <= 0) {
-      min_mireds_ = traits.get_min_mireds();
+      min_mireds_ = light_min_mireds_;
     }
     if (max_mireds_ <= 0) {
-      max_mireds_ = traits.get_max_mireds();
+      max_mireds_ = light_max_mireds_;
     }
   }
   if (this->restore_mode == switch_::SWITCH_ALWAYS_ON) {
@@ -64,6 +67,13 @@ void AdaptiveLightingComponent::update() {
     return;
   }
   last_requested_color_temp_ = mireds;
+
+  // Normalize to avoid warnings
+  if (mireds < light_min_mireds_) {
+    mireds = light_min_mireds_;
+  } else if (mireds > light_max_mireds_) {
+    mireds = light_max_mireds_;
+  }
 
   ESP_LOGD(TAG, "Setting color temperature %.3f", mireds);
   auto call = light_->make_call();
