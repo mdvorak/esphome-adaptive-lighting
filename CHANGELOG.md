@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.0.2...v1.0.3) (2025-03-02)
+
+
+### Bug Fixes
+
+* avoid warnings about color out of range ([9c6a829](https://github.com/mdvorak/esphome-adaptive-lighting/commit/9c6a829b2ba7d2626d7b56c4f2d10f1e40471708))
+
 ## [1.0.2](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.0.1...v1.0.2) (2025-02-02)
 
 
