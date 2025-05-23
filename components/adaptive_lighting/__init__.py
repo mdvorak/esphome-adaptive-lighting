@@ -25,8 +25,9 @@ AdaptiveLightingComponent = adaptive_lighting_ns.class_(
 )
 
 # Schema for a single component
-ADAPTIVE_LIGHTING_SCHEMA = cv.Schema({
-    cv.GenerateID(): cv.declare_id(AdaptiveLightingComponent),
+ADAPTIVE_LIGHTING_SCHEMA = cv.polling_component_schema("60s").extend(
+    switch.switch_schema(AdaptiveLightingComponent, default_restore_mode="ALWAYS_ON", icon="mdi:blur-linear")
+).extend(cv.Schema({
     cv.GenerateID(CONF_SUN_ID): cv.use_id(sun.Sun),
     cv.Required(CONF_LIGHT_ID): cv.use_id(light.LightState),
     cv.Optional(CONF_COLD_WHITE_COLOR_TEMPERATURE): cv.color_temperature,
@@ -35,8 +36,7 @@ ADAPTIVE_LIGHTING_SCHEMA = cv.Schema({
     cv.Optional(CONF_SUNSET_ELEVATION, default="nautical"): sun.elevation,
     cv.Optional(CONF_TRANSITION_LENGTH, default="1s"): cv.positive_time_period_milliseconds,
     cv.Optional(CONF_SPEED, default=1): cv.positive_float,
-}).extend(switch.switch_schema(default_restore_mode="ALWAYS_ON", icon="mdi:blur-linear")).extend(
-    cv.polling_component_schema("60s"))
+}))
 
 # Main schema that allows multiple components
 CONFIG_SCHEMA = cv.All(cv.ensure_list(ADAPTIVE_LIGHTING_SCHEMA))
