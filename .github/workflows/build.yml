@@ -14,7 +14,7 @@ jobs:
     name: Adaptive Lighting
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/esphome/esphome
+      image: ghcr.io/esphome/esphome:2025.4.0
       volumes:
         - /github/home/.cache:/github/home/.cache
         - /github/home/.platformio:/github/home/.platformio
