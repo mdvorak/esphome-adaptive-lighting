@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.0.3...v1.0.4) (2025-05-23)
+
+
+### Bug Fixes
+
+* fix compatibility with ESPHome 2025.5 ([96f0fa2](https://github.com/mdvorak/esphome-adaptive-lighting/commit/96f0fa201daf3eb1bb5fbab0906094c55056117e))
+
 ## [1.0.3](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.0.2...v1.0.3) (2025-03-02)
 
 
