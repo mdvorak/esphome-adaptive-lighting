@@ -7,6 +7,8 @@ on:
   pull_request:
     branches:
       - '**'
+  schedule:
+    - cron: '0 4 * * 6' # Every Saturday at 04:00 UTC
   workflow_dispatch:
 
 jobs:
@@ -14,7 +16,7 @@ jobs:
     name: Adaptive Lighting
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/esphome/esphome:2025.4.0
+      image: ghcr.io/esphome/esphome
       volumes:
         - /github/home/.cache:/github/home/.cache
         - /github/home/.platformio:/github/home/.platformio
