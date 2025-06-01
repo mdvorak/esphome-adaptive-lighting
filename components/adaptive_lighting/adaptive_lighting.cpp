@@ -47,7 +47,7 @@ void AdaptiveLightingComponent::update() {
   // Calculate start of day, to get today's events, not next events
   auto today = now;
   today.hour = today.minute = today.second = 0;
-  today.recalc_timestamp_utc();
+  today.recalc_timestamp_local();
 
   auto sunrise = sun_->sunrise(today, sunrise_elevation_);
   auto sunset = sun_->sunset(today, sunset_elevation_);
@@ -162,7 +162,7 @@ void AdaptiveLightingComponent::dump_config() {
   // Calculate start of day, to get today's events, not next events
   auto today = now;
   today.hour = today.minute = today.second = 0;
-  today.recalc_timestamp_utc();
+  today.recalc_timestamp_local();
 
   auto sunrise = sun_->sunrise(today, sunrise_elevation_);
   auto sunset = sun_->sunset(today, sunset_elevation_);
@@ -185,7 +185,7 @@ void AdaptiveLightingComponent::dump_config() {
   for (int i = 0; i < 24; i++) {
     auto time = today;
     time.hour = i;
-    time.recalc_timestamp_utc();
+    time.recalc_timestamp_local();
     float mireds = calc_color_temperature(time.timestamp, sunrise->timestamp, sunset->timestamp);
     ESP_LOGCONFIG(TAG, "Time: %s, Color temperature: %.3f", time.strftime("%x %X").c_str(), mireds);
   }
