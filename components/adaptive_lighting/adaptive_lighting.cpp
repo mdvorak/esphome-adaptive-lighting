@@ -158,7 +158,7 @@ void AdaptiveLightingComponent::dump_config() {
   }
 
   // Get current timestamp
-  const auto now = sun_->get_time()->now();
+  auto now = sun_->get_time()->now();
   // Calculate start of day, to get today's events, not next events
   auto today = now;
   today.hour = today.minute = today.second = 0;
@@ -168,7 +168,8 @@ void AdaptiveLightingComponent::dump_config() {
   auto sunset = sun_->sunset(today, sunset_elevation_);
 
   if (!sunrise || !sunset) {
-    ESP_LOGW(TAG, "Could not determine sunrise or sunset");
+    ESP_LOGW(TAG, "Could not determine sunrise or sunset: %d %d", !!sunrise, !!sunset);
+    ESP_LOGW(TAG, "Today: %s", today.strftime("%x %X").c_str());
     return;
   }
 
