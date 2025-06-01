@@ -157,12 +157,14 @@ void AdaptiveLightingComponent::dump_config() {
     return;
   }
 
+  ESP_LOGCONFIG(TAG, "sunrise_elevation: %.3f", sunrise_elevation_);
+  ESP_LOGCONFIG(TAG, "sunset_elevation: %.3f", sunset_elevation_);
+
   // Get current timestamp
   auto now = sun_->get_time()->now();
   // Calculate start of day, to get today's events, not next events
   auto today = now;
   today.hour = today.minute = today.second = 0;
-  today.month = 5;
   today.recalc_timestamp_utc();
 
   auto sunrise = sun_->sunrise(today, sunrise_elevation_);
