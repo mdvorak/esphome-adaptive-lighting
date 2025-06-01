@@ -9,6 +9,14 @@
 namespace esphome {
 namespace adaptive_lighting {
 
+struct SunEvents {
+  ESPTime today;
+  optional<ESPTime> sunrise;
+  optional<ESPTime> sunset;
+  float sunrise_elevation;
+  float sunset_elevation;
+};
+
 class AdaptiveLightingComponent : public PollingComponent, public switch_::Switch {
 public:
   void setup() override;
@@ -29,6 +37,8 @@ public:
   void force_next_update() { last_requested_color_temp_ = 0; }
 
   void dump_config() override;
+
+  SunEvents calc_sun_events(const ESPTime &now);
 
   float calc_color_temperature(const time_t now, const time_t sunrise, const time_t sunset) {
     return calc_color_temperature(now, sunrise, sunset, min_mireds_, max_mireds_, speed_);

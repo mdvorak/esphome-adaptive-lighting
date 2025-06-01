@@ -7,6 +7,7 @@
 #include "esphome/core/log.h"
 
 static const char *TAG = "adaptive_lighting";
+static constexpr float ELEVATION_ADJUSTMENT_STEP = 0.1f;
 
 namespace esphome {
 namespace adaptive_lighting {
@@ -42,23 +43,19 @@ void AdaptiveLightingComponent::update() {
     return;
   }
 
-  // Get current timestamp
+  // Calculate sun events
   const auto now = sun_->get_time()->now();
-  // Calculate start of day, to get today's events, not next events
-  auto today = now;
-  today.hour = today.minute = today.second = 0;
-  today.recalc_timestamp_utc();
+  SunEvents sun_events = calc_sun_events(now);
 
-  auto sunrise = sun_->sunrise(today, sunrise_elevation_);
-  auto sunset = sun_->sunset(today, sunset_elevation_);
-
-  if (!sunrise || !sunset) {
-    ESP_LOGW(TAG, "Could not determine sunrise or sunset");
+  if (!sun_events.sunrise || !sun_events.sunset) {
+    ESP_LOGW(TAG, "Could not determine sunrise or sunset (%d %d)", !!sun_events.sunrise, !!sun_events.sunset);
     return;
   }
 
   // Calculate
-  float mireds = calc_color_temperature(now.timestamp, sunrise->timestamp, sunset->timestamp);
+  const time_t sunrise_time = sun_events.sunrise->timestamp;
+  const time_t sunset_time = sun_events.sunset->timestamp;
+  float mireds = calc_color_temperature(now.timestamp, sunrise_time, sunset_time);
 
   // Compare if < 0.1 difference
   if (std::fabs(mireds - last_requested_color_temp_) < 0.1) {
@@ -128,6 +125,42 @@ void AdaptiveLightingComponent::handle_light_state_change() {
   previous_light_state_ = current_state;
 }
 
+SunEvents AdaptiveLightingComponent::calc_sun_events(const ESPTime &now) {
+  // Calculate start of day, to get today's events, not next events
+  ESPTime today = now;
+  today.hour = today.minute = today.second = 0;
+  today.recalc_timestamp_local();
+
+  // Note Sun class does not expose any useful methods to get maximum and minimum elevation
+  float sunrise_elevation = sunrise_elevation_;
+  optional<ESPTime> sunrise = sun_->sunrise(today, sunrise_elevation);
+
+  // Adjust sunrise elevation to find valid sunrise time
+  while (!sunrise && sunrise_elevation < 0.0f) {
+    sunrise_elevation += ELEVATION_ADJUSTMENT_STEP;
+    sunrise = sun_->sunrise(today, sunrise_elevation);
+  }
+  while (!sunrise && sunrise_elevation > -90.0f) {
+    sunrise_elevation -= ELEVATION_ADJUSTMENT_STEP;
+    sunrise = sun_->sunrise(today, sunrise_elevation);
+  }
+
+  float sunset_elevation = sunset_elevation_;
+  optional<ESPTime> sunset = sun_->sunset(today, sunset_elevation);
+
+  // Adjust sunset elevation to find valid sunset time
+  while (!sunset && sunset_elevation < 0.0f) {
+    sunset_elevation += ELEVATION_ADJUSTMENT_STEP;
+    sunset = sun_->sunset(today, sunset_elevation);
+  }
+  while (!sunset && sunset_elevation > -90.0f) {
+    sunset_elevation -= ELEVATION_ADJUSTMENT_STEP;
+    sunset = sun_->sunset(today, sunset_elevation);
+  }
+
+  return {today, sunrise, sunset, sunrise_elevation, sunset_elevation};
+}
+
 // x in [0, 1]
 static float smooth_transition(float x, float y_min, float y_max, float speed = 1) {
   // This influences transition curve and speed
@@ -157,35 +190,37 @@ void AdaptiveLightingComponent::dump_config() {
     return;
   }
 
-  // Get current timestamp
+  ESP_LOGCONFIG(TAG, "sunrise_elevation: %.3f", sunrise_elevation_);
+  ESP_LOGCONFIG(TAG, "sunset_elevation: %.3f", sunset_elevation_);
+
+  // Calculate sun events
   const auto now = sun_->get_time()->now();
-  // Calculate start of day, to get today's events, not next events
-  auto today = now;
-  today.hour = today.minute = today.second = 0;
-  today.recalc_timestamp_utc();
+  SunEvents sun_events = calc_sun_events(now);
 
-  auto sunrise = sun_->sunrise(today, sunrise_elevation_);
-  auto sunset = sun_->sunset(today, sunset_elevation_);
+  ESP_LOGCONFIG(TAG, "Adaptive Lighting %s", ADAPTIVE_LIGHTING_VERSION);
+  ESP_LOGCONFIG(TAG, "Today: %s", sun_events.today.strftime("%x %X").c_str());
 
-  if (!sunrise || !sunset) {
-    ESP_LOGW(TAG, "Could not determine sunrise or sunset");
+  if (!sun_events.sunrise || !sun_events.sunset) {
+    ESP_LOGW(TAG, "Could not determine sunrise or sunset (%d %d)", !!sun_events.sunrise, !!sun_events.sunset);
+    ESP_LOGW(TAG, "Today: %s", sun_events.today.strftime("%x %X").c_str());
     return;
   }
 
-  ESP_LOGCONFIG(TAG, "Adaptive Lighting %s", ADAPTIVE_LIGHTING_VERSION);
-  ESP_LOGCONFIG(TAG, "Today: %s", today.strftime("%x %X").c_str());
-  ESP_LOGCONFIG(TAG, "Sunrise: %s", sunrise->strftime("%x %X").c_str());
-  ESP_LOGCONFIG(TAG, "Sunset: %s", sunset->strftime("%x %X").c_str());
+  ESP_LOGCONFIG(TAG, "Sunrise: %s", sun_events.sunrise->strftime("%x %X").c_str());
+  ESP_LOGCONFIG(TAG, "Sunset: %s", sun_events.sunset->strftime("%x %X").c_str());
   ESP_LOGCONFIG(TAG, "Sun elevation: %.3f", sun_->elevation());
-  ESP_LOGCONFIG(TAG, "Sunrise elevation: %.3f, sunset elevation: %.3f", sunrise_elevation_, sunset_elevation_);
+  ESP_LOGCONFIG(TAG, "Configured sunrise elevation: %.3f, sunset elevation: %.3f", sunrise_elevation_,
+                sunset_elevation_);
+  ESP_LOGCONFIG(TAG, "Adjusted   sunrise elevation: %.3f, sunset elevation: %.3f", sun_events.sunrise_elevation,
+                sun_events.sunset_elevation);
   ESP_LOGCONFIG(TAG, "Color temperature range: %.3f - %.3f", min_mireds_, max_mireds_);
   ESP_LOGCONFIG(TAG, "Transition length: %d", transition_length_);
 
   for (int i = 0; i < 24; i++) {
-    auto time = today;
+    auto time = sun_events.today;
     time.hour = i;
-    time.recalc_timestamp_utc();
-    float mireds = calc_color_temperature(time.timestamp, sunrise->timestamp, sunset->timestamp);
+    time.recalc_timestamp_local();
+    float mireds = calc_color_temperature(time.timestamp, sun_events.sunrise->timestamp, sun_events.sunset->timestamp);
     ESP_LOGCONFIG(TAG, "Time: %s, Color temperature: %.3f", time.strftime("%x %X").c_str(), mireds);
   }
 
