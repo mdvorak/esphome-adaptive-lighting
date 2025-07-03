@@ -12,11 +12,27 @@ on:
   workflow_dispatch:
 
 jobs:
+  esphome_version:
+    name: Get ESPHome Version
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.get_tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get ESPHome image tag from Dockerfile
+        id: get_tag
+        run: |
+          TAG=$(grep '^FROM ghcr.io/esphome/esphome:' Dockerfile | head -n1 | cut -d: -f2)
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Using ESPHome version: **${TAG}**" >> $GITHUB_STEP_SUMMARY
+
   adaptive_lighting:
     name: Adaptive Lighting
     runs-on: ubuntu-latest
+    needs: esphome_version
     container:
-      image: ghcr.io/esphome/esphome
+      image: ghcr.io/esphome/esphome:${{ needs.esphome_version.outputs.tag }}
       volumes:
         - /github/home/.cache:/github/home/.cache
         - /github/home/.platformio:/github/home/.platformio
@@ -51,3 +67,16 @@ jobs:
 
       - name: Build
         run: esphome compile "$YAML_FILE"
+
+      - name: Add build summary
+        if: always()
+        run: |
+          echo "## Build Results" >> $GITHUB_STEP_SUMMARY
+          echo "- **Device Name:** ${{ env.DEVICE_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Config File:** ${{ env.YAML_FILE }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **ESPHome Version:** ${{ needs.esphome_version.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "- **Status:** ✅ Build successful" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Status:** ❌ Build failed" >> $GITHUB_STEP_SUMMARY
+          fi
