@@ -8,12 +8,26 @@ on:
 jobs:
   generate:
     runs-on: ubuntu-latest
+    environment: release
     permissions:
       contents: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up SSH
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git remote set-url origin "git@github.com:${GITHUB_REPOSITORY}.git"
 
       - name: Parse semver
         uses: madhead/semver-utils@v4
@@ -22,9 +36,11 @@ jobs:
           version: ${{ github.ref_name }}
 
       - name: Update tags
+        env:
+          GIT_SSH_COMMAND: 'ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes'
         run: |
           TAGS='v${{ steps.version.outputs.major }} v${{ steps.version.outputs.major }}.${{ steps.version.outputs.minor }}'
-          
+
           for t in $TAGS; do
             git tag -f "$t"
             git push origin ":$t" 2>/dev/null || true
