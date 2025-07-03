@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.6](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.0.5...v1.0.6) (2025-07-03)
+
+
+### Bug Fixes
+
+* fix tag creation workflow ([c5cb17c](https://github.com/mdvorak/esphome-adaptive-lighting/commit/c5cb17c4688052456be05788c78de3e4faa3cd20))
+
 ## [1.0.5](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.0.4...v1.0.5) (2025-07-03)
 
 
