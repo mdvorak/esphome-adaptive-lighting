@@ -71,12 +71,6 @@ jobs:
       - name: Add build summary
         if: always()
         run: |
-          echo "## Build Results" >> $GITHUB_STEP_SUMMARY
           echo "- **Device Name:** ${{ env.DEVICE_NAME }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Config File:** ${{ env.YAML_FILE }}" >> $GITHUB_STEP_SUMMARY
           echo "- **ESPHome Version:** ${{ needs.esphome_version.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ job.status }}" == "success" ]; then
-            echo "- **Status:** ✅ Build successful" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "- **Status:** ❌ Build failed" >> $GITHUB_STEP_SUMMARY
-          fi
