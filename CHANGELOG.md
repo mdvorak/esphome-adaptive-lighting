@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.5](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.0.4...v1.0.5) (2025-07-03)
+
+
+### Bug Fixes
+
+* adjust elevation if out of range for today ([87d8d6c](https://github.com/mdvorak/esphome-adaptive-lighting/commit/87d8d6c0842e6f38abbaaa1816e06fc0d656e2f8))
+
 ## [1.0.4](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.0.3...v1.0.4) (2025-05-23)
 
 
