@@ -18,7 +18,7 @@ jobs:
     outputs:
       tag: ${{ steps.get_tag.outputs.tag }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Get ESPHome image tag from Dockerfile
         id: get_tag
@@ -40,7 +40,7 @@ jobs:
       YAML_FILE: example_adaptive_lighting.yaml
       DEVICE_NAME: adaptive-light
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set local component path
         uses: mikefarah/yq@v4
