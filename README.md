@@ -78,7 +78,7 @@ time:
 
 ## Credits
 
-* Loosely based on https://github.com/basnijholt/adaptive-lighting, thanks [basnijholt](https://github.com/basnijholt)!
+* Inspired by https://github.com/basnijholt/adaptive-lighting, thanks [@basnijholt](https://github.com/basnijholt)!
 
 ## License
 
