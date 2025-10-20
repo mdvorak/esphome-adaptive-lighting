@@ -1,0 +1,12 @@
+{
+  "always-update": true,
+  "include-component-in-tag": false,
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "extraFiles": [
+        "components/adaptive_lighting/adaptive_lighting_version.h"
+      ]
+    }
+  }
+}
