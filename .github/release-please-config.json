@@ -4,7 +4,7 @@
   "packages": {
     ".": {
       "release-type": "simple",
-      "extraFiles": [
+      "extra-files": [
         "components/adaptive_lighting/adaptive_lighting_version.h"
       ]
     }
