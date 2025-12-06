@@ -4,7 +4,6 @@
 #include <cmath>
 #include <utility>
 
-#include "esphome/core/application.h"
 #include "esphome/core/log.h"
 
 static const char *TAG = "adaptive_lighting";
@@ -33,11 +32,16 @@ void AdaptiveLightingComponent::setup() {
   }
 
   // Register callback for time synchronization events
-  App.register_time_sync_callback([this]() {
-    ESP_LOGD(TAG, "Time synchronized, forcing adaptive lighting update");
-    this->force_next_update();
-    this->update();
-  });
+  if (sun_ != nullptr) {
+    auto *time = sun_->get_time();
+    if (time != nullptr) {
+      time->add_on_time_sync_callback([this]() {
+        ESP_LOGD(TAG, "Time synchronized, forcing adaptive lighting update");
+        this->force_next_update();
+        this->update();
+      });
+    }
+  }
 }
 
 void AdaptiveLightingComponent::update() {
