@@ -5,6 +5,7 @@
 #include <utility>
 
 #include "esphome/core/log.h"
+#include "esphome/core/application.h"  // for App.register_time_sync_callback
 
 static const char *TAG = "adaptive_lighting";
 static constexpr float ELEVATION_ADJUSTMENT_STEP = 0.1f;
@@ -27,6 +28,13 @@ void AdaptiveLightingComponent::setup() {
       max_mireds_ = light_max_mireds_;
     }
   }
+  // react to system time sync events (no YAML on_time_sync required)
+  App.register_time_sync_callback([this]() {
+    ESP_LOGD(TAG, "Time synchronized, forcing adaptive lighting update");
+    this->force_next_update();
+    this->update();
+  });
+
   if (this->restore_mode == switch_::SWITCH_ALWAYS_ON) {
     this->publish_state(true);
   }
