@@ -33,3 +33,5 @@ secrets.yaml
 *.exe
 *.out
 *.app
+*.pyc
+__pycache__/
