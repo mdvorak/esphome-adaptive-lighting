@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.7](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.0.6...v1.0.7) (2025-12-17)
+
+
+### Bug Fixes
+
+* migrate to ESPHome 2025.12 listener interface for light remote values callbacks ([c8d60bc](https://github.com/mdvorak/esphome-adaptive-lighting/commit/c8d60bce9346d35fcc11199ee0d21dfb38aedb4d))
+
 ## [1.0.6](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.0.5...v1.0.6) (2025-07-03)
 
 
