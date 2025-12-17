@@ -33,3 +33,6 @@ secrets.yaml
 *.exe
 *.out
 *.app
+
+__pycache__/
+test_build.yaml
