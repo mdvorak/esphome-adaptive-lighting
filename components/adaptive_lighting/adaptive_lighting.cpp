@@ -47,7 +47,7 @@ void AdaptiveLightingComponent::setup() {
     auto *time = sun_->get_time();
     if (time != nullptr) {
       time->add_on_time_sync_callback([this]() {
-        ESP_LOGD(TAG, "Time synchronized, forcing adaptive lighting update");
+        ESP_LOGI(TAG, "Time synchronized, forcing adaptive lighting update");
         this->force_next_update();
         this->update();
       });
