@@ -5,9 +5,9 @@
 #include "esphome/components/sun/sun.h"
 #include "esphome/components/switch/switch.h"
 #include "esphome/core/component.h"
+#include "esphome/core/version.h"
 
-namespace esphome {
-namespace adaptive_lighting {
+namespace esphome::adaptive_lighting {
 
 struct SunEvents {
   ESPTime today;
@@ -17,22 +17,17 @@ struct SunEvents {
   float sunset_elevation;
 };
 
+class AdaptiveLightingListenerAdapter;
+
 class AdaptiveLightingComponent : public PollingComponent, public switch_::Switch
-#if ESPHOME_VERSION_CODE >= VERSION_CODE(2025, 12, 0)
-, public light::LightRemoteValuesListener
-#endif
 {
 public:
   void setup() override;
 
-#if ESPHOME_VERSION_CODE >= VERSION_CODE(2025, 12, 0)
-  void on_light_remote_values_update() override;
-#else
-  void on_light_remote_values_update();
-#endif
+  virtual ~AdaptiveLightingComponent();
 
-  void set_sun(sun::Sun *sun) { sun_ = sun; }
-  void set_light(light::LightState *light) { light_ = light; }
+  void set_sun(sun::Sun *sun) { ESP_LOGW("TAG", "Sun: %p and %p", static_cast<void *>(sun_), static_cast<void *>(listener_)); sun_ = sun;  }
+  void set_light(light::LightState *light) { ESP_LOGW("TAG", "Light: %p TO %p", static_cast<void *>(light_), static_cast<void *>(light)); light_ = light; }
   void set_cold_white_temperature(float min_mireds) { min_mireds_ = min_mireds; }
   void set_warm_white_temperature(float max_mireds) { max_mireds_ = max_mireds; }
   void set_transition_length(uint32_t transition_length) { transition_length_ = transition_length; }
@@ -48,6 +43,8 @@ public:
 
   void dump_config() override;
 
+  void on_light_remote_values_update();
+
   SunEvents calc_sun_events(const ESPTime &now);
 
   float calc_color_temperature(const time_t now, const time_t sunrise, const time_t sunset) {
@@ -62,8 +59,6 @@ protected:
   light::LightState *light_{nullptr};
   float min_mireds_{0};
   float max_mireds_{0};
-  float light_min_mireds_{0};
-  float light_max_mireds_{0};
   float sunrise_elevation_{-0.83333};
   float sunset_elevation_{-0.83333};
   uint32_t transition_length_{0};
@@ -71,7 +66,10 @@ protected:
 
   bool previous_light_state_{false};
   float last_requested_color_temp_{0};
+
+#if ESPHOME_VERSION_CODE >= VERSION_CODE(2025, 12, 0)
+  AdaptiveLightingListenerAdapter *listener_{nullptr};
+#endif
 };
 
-} // namespace adaptive_lighting
-} // namespace esphome
+} // namespace esphome::adaptive_lighting
