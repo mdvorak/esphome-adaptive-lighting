@@ -41,6 +41,18 @@ void AdaptiveLightingComponent::setup() {
   if (this->restore_mode == switch_::SWITCH_ALWAYS_ON) {
     this->publish_state(true);
   }
+
+  // Register callback for time synchronization events
+  if (sun_ != nullptr) {
+    auto *time = sun_->get_time();
+    if (time != nullptr) {
+      time->add_on_time_sync_callback([this]() {
+        ESP_LOGI(TAG, "Time synchronized, forcing adaptive lighting update");
+        this->force_next_update();
+        this->update();
+      });
+    }
+  }
 }
 
 void AdaptiveLightingComponent::update() {
