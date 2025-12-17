@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.9](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.0.8...v1.0.9) (2025-12-17)
+
+
+### Bug Fixes
+
+* update AdaptiveLightingComponent for ESPHome 2025.12 compatibility in adaptive_lighting ([e28d36c](https://github.com/mdvorak/esphome-adaptive-lighting/commit/e28d36c1c231d4c9e5675f408b99d9f322304924))
+
 ## [1.0.8](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.0.7...v1.0.8) (2025-12-17)
 
 
