@@ -9,27 +9,34 @@
 static const char *TAG = "adaptive_lighting";
 static constexpr float ELEVATION_ADJUSTMENT_STEP = 0.1f;
 
-namespace esphome {
-namespace adaptive_lighting {
+namespace esphome::adaptive_lighting {
+
+#if ESPHOME_VERSION_CODE >= VERSION_CODE(2025, 12, 0)
+class AdaptiveLightingListenerAdapter : public light::LightRemoteValuesListener {
+ public:
+  explicit AdaptiveLightingListenerAdapter(AdaptiveLightingComponent *parent) : parent_(parent) {}
+  void on_light_remote_values_update() override { parent_->on_light_remote_values_update(); }
+
+ private:
+  AdaptiveLightingComponent *parent_;
+};
+#endif
+
+AdaptiveLightingComponent::~AdaptiveLightingComponent() {
+#if ESPHOME_VERSION_CODE >= VERSION_CODE(2025, 12, 0)
+  delete listener_;
+  listener_ = nullptr;
+#endif
+}
 
 void AdaptiveLightingComponent::setup() {
   if (light_ != nullptr) {
 #if ESPHOME_VERSION_CODE >= VERSION_CODE(2025, 12, 0)
-    light_->add_remote_values_listener(this);
+    listener_ = new AdaptiveLightingListenerAdapter(this);
+    light_->add_remote_values_listener(listener_);
 #else
     light_->add_new_remote_values_callback([this]() { on_light_remote_values_update(); });
 #endif
-
-    auto traits = light_->get_traits();
-    light_min_mireds_ = traits.get_min_mireds();
-    light_max_mireds_ = traits.get_max_mireds();
-
-    if (min_mireds_ <= 0) {
-      min_mireds_ = light_min_mireds_;
-    }
-    if (max_mireds_ <= 0) {
-      max_mireds_ = light_max_mireds_;
-    }
   }
   if (this->restore_mode == switch_::SWITCH_ALWAYS_ON) {
     this->publish_state(true);
@@ -69,11 +76,15 @@ void AdaptiveLightingComponent::update() {
   }
   last_requested_color_temp_ = mireds;
 
+  auto traits = light_->get_traits();
+  auto light_min_mireds = traits.get_min_mireds();
+  auto light_max_mireds = traits.get_max_mireds();
+
   // Normalize to avoid warnings
-  if (mireds < light_min_mireds_) {
-    mireds = light_min_mireds_;
-  } else if (mireds > light_max_mireds_) {
-    mireds = light_max_mireds_;
+  if (mireds < light_min_mireds) {
+    mireds = light_min_mireds;
+  } else if (mireds > light_max_mireds) {
+    mireds = light_max_mireds;
   }
 
   ESP_LOGD(TAG, "Setting color temperature %.3f", mireds);
@@ -231,5 +242,4 @@ void AdaptiveLightingComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "State: %s", this->state ? "enabled" : "disabled");
 }
 
-} // namespace adaptive_lighting
-} // namespace esphome
+} // namespace esphome::adaptive_lighting
