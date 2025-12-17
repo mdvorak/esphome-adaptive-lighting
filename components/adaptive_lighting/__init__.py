@@ -45,13 +45,10 @@ CONFIG_SCHEMA = cv.All(cv.ensure_list(ADAPTIVE_LIGHTING_SCHEMA))
 async def to_code(config):
     for conf in config:
         var = cg.new_Pvariable(conf[CONF_ID])
-        await cg.register_component(var, conf)
 
         sun_component = await cg.get_variable(conf[CONF_SUN_ID])
         light_component = await cg.get_variable(conf[CONF_LIGHT_ID])
 
-        cg.add(var.set_light(light_component))
-        cg.add(var.set_sun(sun_component))
         if CONF_COLD_WHITE_COLOR_TEMPERATURE in conf:
             cg.add(var.set_cold_white_temperature(conf[CONF_COLD_WHITE_COLOR_TEMPERATURE]))
         if CONF_WARM_WHITE_COLOR_TEMPERATURE in conf:
@@ -63,4 +60,8 @@ async def to_code(config):
         if CONF_SPEED in conf:
             cg.add(var.set_speed(conf[CONF_SPEED]))
 
+        cg.add(var.set_light(light_component))
+        cg.add(var.set_sun(sun_component))
+
+        await cg.register_component(var, conf)
         await switch.register_switch(var, conf)

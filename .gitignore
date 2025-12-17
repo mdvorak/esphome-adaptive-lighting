@@ -1,5 +1,6 @@
 secrets.yaml
 .esphome/
+.idea/
 
 # Prerequisites
 *.d
@@ -34,5 +35,6 @@ secrets.yaml
 *.out
 *.app
 *.pyc
+
 __pycache__/
 _codeql_detected_source_root
