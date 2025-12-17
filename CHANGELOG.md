@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.0.9...v1.1.0) (2025-12-17)
+
+
+### Features
+
+* automatically update light after time sync ([f24e503](https://github.com/mdvorak/esphome-adaptive-lighting/commit/f24e503499fd06c289f1ca2a9c53b3952a3ef75a))
+
 ## [1.0.9](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.0.8...v1.0.9) (2025-12-17)
 
 
