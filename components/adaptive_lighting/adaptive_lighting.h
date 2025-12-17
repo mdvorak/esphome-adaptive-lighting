@@ -17,11 +17,19 @@ struct SunEvents {
   float sunset_elevation;
 };
 
-class AdaptiveLightingComponent : public PollingComponent, public switch_::Switch, public light::LightRemoteValuesListener {
+class AdaptiveLightingComponent : public PollingComponent, public switch_::Switch
+#if ESPHOME_VERSION_CODE >= VERSION_CODE(2025, 12, 0)
+, public light::LightRemoteValuesListener
+#endif
+{
 public:
   void setup() override;
-  
+
+#if ESPHOME_VERSION_CODE >= VERSION_CODE(2025, 12, 0)
   void on_light_remote_values_update() override;
+#else
+  void on_light_remote_values_update();
+#endif
 
   void set_sun(sun::Sun *sun) { sun_ = sun; }
   void set_light(light::LightState *light) { light_ = light; }

@@ -14,7 +14,11 @@ namespace adaptive_lighting {
 
 void AdaptiveLightingComponent::setup() {
   if (light_ != nullptr) {
+#if ESPHOME_VERSION_CODE >= VERSION_CODE(2025, 12, 0)
     light_->add_remote_values_listener(this);
+#else
+    light_->add_new_remote_values_callback([this]() { on_light_remote_values_update(); });
+#endif
 
     auto traits = light_->get_traits();
     light_min_mireds_ = traits.get_min_mireds();
