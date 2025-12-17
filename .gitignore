@@ -33,4 +33,5 @@ secrets.yaml
 *.exe
 *.out
 *.app
-components/adaptive_lighting/__pycache__/
+
+__pycache__/
