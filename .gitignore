@@ -35,3 +35,4 @@ secrets.yaml
 *.app
 
 __pycache__/
+test_build.yaml

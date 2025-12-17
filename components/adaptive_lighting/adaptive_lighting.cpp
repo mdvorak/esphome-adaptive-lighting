@@ -14,7 +14,7 @@ namespace adaptive_lighting {
 
 void AdaptiveLightingComponent::setup() {
   if (light_ != nullptr) {
-    light_->add_remote_values_listener(this);
+    light_->add_new_remote_values_callback([this]() { handle_light_state_change(); });
 
     auto traits = light_->get_traits();
     light_min_mireds_ = traits.get_min_mireds();
@@ -97,7 +97,7 @@ void AdaptiveLightingComponent::write_state(bool state) {
   }
 }
 
-void AdaptiveLightingComponent::on_light_remote_values_update() {
+void AdaptiveLightingComponent::handle_light_state_change() {
   if (light_ == nullptr)
     return;
 
