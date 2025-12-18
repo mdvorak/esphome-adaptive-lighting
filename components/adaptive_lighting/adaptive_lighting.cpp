@@ -31,6 +31,20 @@ AdaptiveLightingComponent::~AdaptiveLightingComponent() {
 
 void AdaptiveLightingComponent::setup() {
   if (light_ != nullptr) {
+    // Initialize min/max mireds for the light
+    auto traits = light_->get_traits();
+    light_min_mireds_ = traits.get_min_mireds();
+    light_max_mireds_ = traits.get_max_mireds();
+
+    // Inherit min/max mireds from light if not set
+    if (min_mireds_ <= 0) {
+      min_mireds_ = light_min_mireds_;
+    }
+    if (max_mireds_ <= 0) {
+      max_mireds_ = light_max_mireds_;
+    }
+
+    // Initialize listener
 #if ESPHOME_VERSION_CODE >= VERSION_CODE(2025, 12, 0)
     listener_ = new AdaptiveLightingListenerAdapter(this);
     light_->add_remote_values_listener(listener_);
@@ -88,15 +102,11 @@ void AdaptiveLightingComponent::update() {
   }
   last_requested_color_temp_ = mireds;
 
-  auto traits = light_->get_traits();
-  auto light_min_mireds = traits.get_min_mireds();
-  auto light_max_mireds = traits.get_max_mireds();
-
   // Normalize to avoid warnings
-  if (mireds < light_min_mireds) {
-    mireds = light_min_mireds;
-  } else if (mireds > light_max_mireds) {
-    mireds = light_max_mireds;
+  if (mireds < light_min_mireds_) {
+    mireds = light_min_mireds_;
+  } else if (mireds > light_max_mireds_) {
+    mireds = light_max_mireds_;
   }
 
   ESP_LOGD(TAG, "Setting color temperature %.3f", mireds);
