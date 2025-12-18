@@ -13,11 +13,11 @@ namespace esphome::adaptive_lighting {
 
 #if ESPHOME_VERSION_CODE >= VERSION_CODE(2025, 12, 0)
 class AdaptiveLightingListenerAdapter : public light::LightRemoteValuesListener {
- public:
+public:
   explicit AdaptiveLightingListenerAdapter(AdaptiveLightingComponent *parent) : parent_(parent) {}
   void on_light_remote_values_update() override { parent_->on_light_remote_values_update(); }
 
- private:
+private:
   AdaptiveLightingComponent *parent_;
 };
 #endif

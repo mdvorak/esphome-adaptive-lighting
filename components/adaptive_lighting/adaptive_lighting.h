@@ -19,14 +19,13 @@ struct SunEvents {
 
 class AdaptiveLightingListenerAdapter;
 
-class AdaptiveLightingComponent : public PollingComponent, public switch_::Switch
-{
+class AdaptiveLightingComponent : public PollingComponent, public switch_::Switch {
 public:
   void setup() override;
 
   virtual ~AdaptiveLightingComponent();
 
-  void set_sun(sun::Sun *sun) { sun_ = sun;  }
+  void set_sun(sun::Sun *sun) { sun_ = sun; }
   void set_light(light::LightState *light) { light_ = light; }
   void set_cold_white_temperature(float min_mireds) { min_mireds_ = min_mireds; }
   void set_warm_white_temperature(float max_mireds) { max_mireds_ = max_mireds; }
