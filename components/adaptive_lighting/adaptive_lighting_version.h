@@ -1,2 +1,2 @@
 #pragma once
-#define ADAPTIVE_LIGHTING_VERSION "v1.1.0" // x-release-please-version
+#define ADAPTIVE_LIGHTING_VERSION "v1.1.1" // x-release-please-version
