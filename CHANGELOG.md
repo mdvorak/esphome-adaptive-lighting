@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.1.0...v1.1.1) (2025-12-18)
+
+
+### Bug Fixes
+
+* remove logging from set_sun and set_light in adaptive_lighting.h ([4a7f576](https://github.com/mdvorak/esphome-adaptive-lighting/commit/4a7f5764b65505106c66fc76aa34ea3a263ebb87))
+* reverted back min/max mireds logic ([71346d0](https://github.com/mdvorak/esphome-adaptive-lighting/commit/71346d04bbb962f54ddd6473af2f104a05300a40))
+
 ## [1.1.0](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.0.9...v1.1.0) (2025-12-17)
 
 
