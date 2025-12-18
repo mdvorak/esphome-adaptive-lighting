@@ -61,6 +61,7 @@ jobs:
 
       - name: Generate cache key
         run: |-
+          echo "ESPHOME_VERSION=$(esphome version)" >> $GITHUB_ENV
           echo "ESPHOME_VER_HASH=$(esphome version | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
 
       - name: Cache dependencies
@@ -80,7 +81,7 @@ jobs:
         run: |
           echo "- **Device Name:** ${{ env.DEVICE_NAME }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Config File:** ${{ env.YAML_FILE }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **ESPHome Version:** ${{ needs.esphome_version.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **ESPHome Version:** ${{ env.ESPHOME_VERSION }}" >> $GITHUB_STEP_SUMMARY
 
   adaptive_lighting_ok:
     name: Adaptive Lighting
