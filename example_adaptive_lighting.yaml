@@ -32,10 +32,10 @@ adaptive_lighting:
 output:
   - platform: ledc
     id: ledc_cold
-    pin: 21
+    pin: 4
   - platform: ledc
     id: ledc_warm
-    pin: 22
+    pin: 5
 
 light:
   - platform: cwww

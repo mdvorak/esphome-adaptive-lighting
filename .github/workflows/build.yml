@@ -38,6 +38,9 @@ jobs:
           - ${{ needs.esphome_version.outputs.tag }}
           - 2025.11.5
           - beta
+        esp32_board:
+          - esp32dev
+          - esp32-c3-devkitm-1
     container:
       image: ghcr.io/esphome/esphome:${{ matrix.esphome_version }}
       volumes:
@@ -45,7 +48,6 @@ jobs:
         - /github/home/.platformio:/github/home/.platformio
     env:
       YAML_FILE: example_adaptive_lighting.yaml
-      DEVICE_NAME: adaptive-light
     steps:
       - uses: actions/checkout@v6
 
@@ -53,6 +55,11 @@ jobs:
         uses: mikefarah/yq@v4
         with:
           cmd: yq -i '.external_components[0].source = "./components"' ${{ env.YAML_FILE }}
+
+      - name: Set esp32 board
+        uses: mikefarah/yq@v4
+        with:
+          cmd: yq -i '.esp32.board = "${{ matrix.esp32_board }}"' ${{ env.YAML_FILE }}
 
       - name: Prepare secrets
         run: |-
@@ -71,7 +78,7 @@ jobs:
             ~/.cache/pip
             ~/.platformio/.cache
             ~/.platformio/packages
-          key: ${{ runner.os }}-pio-${{ env.ESPHOME_VER_HASH }}
+          key: ${{ runner.os }}-pio-${{ env.ESPHOME_VER_HASH }}-${{ matrix.esp32_board }}
 
       - name: Build
         run: esphome compile "$YAML_FILE"
@@ -79,7 +86,7 @@ jobs:
       - name: Add build summary
         if: always()
         run: |
-          echo "- **Device Name:** ${{ env.DEVICE_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Device Name:** ${{ matrix.esp32_board }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Config File:** ${{ env.YAML_FILE }}" >> $GITHUB_STEP_SUMMARY
           echo "- **ESPHome Version:** ${{ env.ESPHOME_VERSION }}" >> $GITHUB_STEP_SUMMARY
 
