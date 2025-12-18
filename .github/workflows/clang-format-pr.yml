@@ -1,0 +1,75 @@
+name: Clang Format
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: clang-format-pr-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  clang_format:
+    name: Reformat sources
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install clang-format
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends clang-format
+          clang-format --version
+
+      - name: Run clang-format
+        run: |
+          set -euo pipefail
+
+          # Restrict to component sources/headers to avoid touching unrelated files.
+          mapfile -d '' FILES < <(
+            find components -type f \
+              \( -name '*.c' -o -name '*.cc' -o -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \) \
+              -print0
+          )
+
+          if [ "${#FILES[@]}" -eq 0 ]; then
+            echo "No C/C++ files found under components/."
+            exit 0
+          fi
+
+          clang-format -i -style=file "${FILES[@]}"
+
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: ci/clang-format/${{ github.base_ref || github.ref_name }}
+          base: ${{ github.base_ref || github.ref_name }}
+          commit-message: "chore: clang-format"
+          title: "chore: clang-format"
+          body: |
+            Automated formatting changes made by GitHub Actions using clang-format.
+
+            - Config: `.clang-format`
+            - Scope: `components/**` (C/C++ sources and headers)
+          labels: |
+            automation
+            chore
+
+      - name: Fail if formatting changes were found
+        if: steps.cpr.outputs.pull-request-number != ''
+        run: |
+          echo "clang-format produced changes and a PR was created/updated (#${{ steps.cpr.outputs.pull-request-number }})." >&2
+          exit 1
