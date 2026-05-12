@@ -30,7 +30,7 @@ jobs:
           git remote set-url origin "git@github.com:${GITHUB_REPOSITORY}.git"
 
       - name: Parse semver
-        uses: madhead/semver-utils@v4
+        uses: madhead/semver-utils@v5
         id: version
         with:
           version: ${{ github.ref_name }}
