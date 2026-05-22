@@ -84,7 +84,9 @@ jobs:
             ~/.cache/pip
             ~/.platformio/.cache
             ~/.platformio/packages
-          key: ${{ runner.os }}-pio-${{ env.ESPHOME_VER_HASH }}-${{ matrix.esp32_variant }}-${{ matrix.toolchain }}
+            ~/.esphome/idf/frameworks
+            ~/.esphome/idf/tools/cmake
+          key: ${{ runner.os }}-esphome-${{ env.ESPHOME_VER_HASH }}-${{ matrix.toolchain }}
 
       - name: Build
         env:
