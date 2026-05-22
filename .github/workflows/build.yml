@@ -41,6 +41,12 @@ jobs:
         esp32_variant:
           - esp32
           - esp32c3
+        toolchain:
+          - platformio
+          - esp-idf
+        exclude:
+          - esphome_version: 2025.11.5
+            toolchain: esp-idf
     container:
       image: ghcr.io/esphome/esphome:${{ matrix.esphome_version }}
       volumes:
@@ -78,15 +84,18 @@ jobs:
             ~/.cache/pip
             ~/.platformio/.cache
             ~/.platformio/packages
-          key: ${{ runner.os }}-pio-${{ env.ESPHOME_VER_HASH }}-${{ matrix.esp32_variant }}
+          key: ${{ runner.os }}-pio-${{ env.ESPHOME_VER_HASH }}-${{ matrix.esp32_variant }}-${{ matrix.toolchain }}
 
       - name: Build
-        run: esphome compile "$YAML_FILE"
+        env:
+          TOOLCHAIN_FLAG: ${{ matrix.esphome_version != '2025.11.5' && format('--toolchain {0}', matrix.toolchain) || '' }}
+        run: esphome $TOOLCHAIN_FLAG compile "$YAML_FILE"
 
       - name: Add build summary
         if: always()
         run: |
           echo "- **Device Name:** ${{ matrix.esp32_variant }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Toolchain:** ${{ matrix.toolchain }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Config File:** ${{ env.YAML_FILE }}" >> $GITHUB_STEP_SUMMARY
           echo "- **ESPHome Version:** ${{ env.ESPHOME_VERSION }}" >> $GITHUB_STEP_SUMMARY
 
