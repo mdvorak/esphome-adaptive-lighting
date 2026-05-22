@@ -55,7 +55,7 @@ jobs:
     env:
       YAML_FILE: example_adaptive_lighting.yaml
       ESPHOME_ESP_IDF_PREFIX: ${{ github.workspace }}/.esphome/idf
-      ESPHOME_USE_CCACHE: 1
+      IDF_CCACHE_ENABLE: 1
     steps:
       - uses: actions/checkout@v6
 
@@ -83,7 +83,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: |-
-            ~/.ccache
+            ~/.cache/ccache
             ~/.cache/pip
             ~/.platformio/.cache
             ~/.platformio/packages
