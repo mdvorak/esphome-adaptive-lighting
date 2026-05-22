@@ -38,9 +38,9 @@ jobs:
           - ${{ needs.esphome_version.outputs.tag }}
           - 2025.11.5
           - beta
-        esp32_board:
-          - esp32dev
-          - esp32-c3-devkitm-1
+        esp32_variant:
+          - esp32
+          - esp32c3
     container:
       image: ghcr.io/esphome/esphome:${{ matrix.esphome_version }}
       volumes:
@@ -56,10 +56,10 @@ jobs:
         with:
           cmd: yq -i '.external_components[0].source = "./components"' ${{ env.YAML_FILE }}
 
-      - name: Set esp32 board
+      - name: Set esp32 variant
         uses: mikefarah/yq@v4
         with:
-          cmd: yq -i '.esp32.board = "${{ matrix.esp32_board }}"' ${{ env.YAML_FILE }}
+          cmd: yq -i '.esp32.variant = "${{ matrix.esp32_variant }}"' ${{ env.YAML_FILE }}
 
       - name: Prepare secrets
         run: |-
@@ -78,7 +78,7 @@ jobs:
             ~/.cache/pip
             ~/.platformio/.cache
             ~/.platformio/packages
-          key: ${{ runner.os }}-pio-${{ env.ESPHOME_VER_HASH }}-${{ matrix.esp32_board }}
+          key: ${{ runner.os }}-pio-${{ env.ESPHOME_VER_HASH }}-${{ matrix.esp32_variant }}
 
       - name: Build
         run: esphome compile "$YAML_FILE"
@@ -86,7 +86,7 @@ jobs:
       - name: Add build summary
         if: always()
         run: |
-          echo "- **Device Name:** ${{ matrix.esp32_board }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Device Name:** ${{ matrix.esp32_variant }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Config File:** ${{ env.YAML_FILE }}" >> $GITHUB_STEP_SUMMARY
           echo "- **ESPHome Version:** ${{ env.ESPHOME_VERSION }}" >> $GITHUB_STEP_SUMMARY
 
