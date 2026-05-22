@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.0](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.1.1...v1.2.0) (2026-05-22)
+
+
+### Features
+
+* add toolchain matrix dimension to build ([6148071](https://github.com/mdvorak/esphome-adaptive-lighting/commit/6148071e7e741177b60344a53040c5a9d86cbf31))
+* replace esp32 board with variant in build matrix ([4fe456f](https://github.com/mdvorak/esphome-adaptive-lighting/commit/4fe456f7d57a00891b084b3c99dfac68eeb95943))
+
+
+### Bug Fixes
+
+* resolve compiler errors for ESP-IDF build ([41d6057](https://github.com/mdvorak/esphome-adaptive-lighting/commit/41d6057dd684c55dfbec1c537a4a24729853795a))
+
 ## [1.1.1](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.1.0...v1.1.1) (2025-12-18)
 
 
