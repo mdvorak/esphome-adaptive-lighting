@@ -1,6 +1,7 @@
 #include "adaptive_lighting.h"
 #include "adaptive_lighting_version.h"
 
+#include <cinttypes>
 #include <cmath>
 #include <utility>
 
@@ -15,6 +16,7 @@ namespace esphome::adaptive_lighting {
 class AdaptiveLightingListenerAdapter : public light::LightRemoteValuesListener {
 public:
   explicit AdaptiveLightingListenerAdapter(AdaptiveLightingComponent *parent) : parent_(parent) {}
+  virtual ~AdaptiveLightingListenerAdapter() = default;
   void on_light_remote_values_update() override { parent_->on_light_remote_values_update(); }
 
 private:
@@ -251,7 +253,7 @@ void AdaptiveLightingComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Adjusted   sunrise elevation: %.3f, sunset elevation: %.3f", sun_events.sunrise_elevation,
                 sun_events.sunset_elevation);
   ESP_LOGCONFIG(TAG, "Color temperature range: %.3f - %.3f", min_mireds_, max_mireds_);
-  ESP_LOGCONFIG(TAG, "Transition length: %d", transition_length_);
+  ESP_LOGCONFIG(TAG, "Transition length: %" PRIu32, transition_length_);
 
   for (int i = 0; i < 24; i++) {
     auto time = sun_events.today;
