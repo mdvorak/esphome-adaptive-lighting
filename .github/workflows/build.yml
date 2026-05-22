@@ -36,17 +36,18 @@ jobs:
       matrix:
         esphome_version:
           - ${{ needs.esphome_version.outputs.tag }}
-          - 2025.11.5
           - beta
         esp32_variant:
           - esp32
           - esp32c3
+          - esp32s3
         toolchain:
           - platformio
           - esp-idf
-        exclude:
+        include:
           - esphome_version: 2025.11.5
-            toolchain: esp-idf
+            esp32_variant: esp32
+            toolchain: platformio
     container:
       image: ghcr.io/esphome/esphome:${{ matrix.esphome_version }}
       volumes:
@@ -54,6 +55,8 @@ jobs:
         - /github/home/.platformio:/github/home/.platformio
     env:
       YAML_FILE: example_adaptive_lighting.yaml
+      ESPHOME_ESP_IDF_PREFIX: ${{ github.workspace }}/.esphome/idf
+      ESPHOME_USE_CCACHE: 1
     steps:
       - uses: actions/checkout@v6
 
@@ -81,11 +84,16 @@ jobs:
         uses: actions/cache@v5
         with:
           path: |-
+            ~/.ccache
             ~/.cache/pip
             ~/.platformio/.cache
             ~/.platformio/packages
-            ~/.esphome/idf/frameworks
-            ~/.esphome/idf/tools/cmake
+            .esphome/idf/frameworks
+            .esphome/idf/penvs
+            .esphome/idf/tools/cmake
+            .esphome/idf/tools/ninja
+            .esphome/idf/tools/esp32ulp-elf
+            .esphome/idf/tools/openocd-esp32
           key: ${{ runner.os }}-esphome-${{ env.ESPHOME_VER_HASH }}-${{ matrix.toolchain }}
 
       - name: Build
