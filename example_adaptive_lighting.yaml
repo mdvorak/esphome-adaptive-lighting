@@ -9,7 +9,7 @@ external_components:
   - source: github://mdvorak/esphome-adaptive-lighting
 
 esp32:
-  board: esp32dev
+  variant: esp32
   framework:
     type: esp-idf
 
