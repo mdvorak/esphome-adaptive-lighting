@@ -36,7 +36,6 @@ jobs:
       matrix:
         esphome_version:
           - ${{ needs.esphome_version.outputs.tag }}
-          - beta
         esp32_variant:
           - esp32
           - esp32c3
