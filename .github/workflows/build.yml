@@ -56,21 +56,25 @@ jobs:
         - /github/home/.cache:/github/home/.cache
         - /github/home/.platformio:/github/home/.platformio
     env:
-      YAML_FILE: example_adaptive_lighting.yaml
       ESPHOME_ESP_IDF_PREFIX: ${{ github.workspace }}/.esphome/idf
       IDF_CCACHE_ENABLE: 1
+      CCACHE_NOHASHDIR: "1"
+      CCACHE_SLOPPINESS: "file_stat_matches,include_file_mtime,include_file_ctime,time_macros"
     steps:
       - uses: actions/checkout@v6
 
-      - name: Set local component path
-        uses: mikefarah/yq@v4
-        with:
-          cmd: yq -i '.external_components[0].source = "./components"' ${{ env.YAML_FILE }}
+      - name: Install ccache
+        if: matrix.toolchain == 'esp-idf'
+        run: |-
+          apt-get update -qq
+          apt-get install -y -qq --no-install-recommends ccache
 
-      - name: Set esp32 variant
+      - name: Set local component path and variant
         uses: mikefarah/yq@v4
         with:
-          cmd: yq -i '.esp32.variant = "${{ matrix.esp32_variant }}"' ${{ env.YAML_FILE }}
+          cmd: |
+            yq -i '.external_components[0].source = "./components"' example_adaptive_lighting.yaml
+            yq -i '.esp32.variant = "${{ matrix.esp32_variant }}"' example_adaptive_lighting.yaml
 
       - name: Prepare secrets
         run: |-
@@ -101,14 +105,19 @@ jobs:
       - name: Build
         env:
           TOOLCHAIN_FLAG: ${{ matrix.esphome_version != '2025.11.5' && format('--toolchain {0}', matrix.toolchain) || '' }}
-        run: esphome $TOOLCHAIN_FLAG compile "$YAML_FILE"
+        run: |-
+          export CCACHE_BASEDIR="$GITHUB_WORKSPACE/.esphome/build/adaptive-light"
+          esphome $TOOLCHAIN_FLAG compile example_adaptive_lighting.yaml
+
+      - name: ccache stats
+        if: matrix.toolchain == 'esp-idf'
+        run: ccache -s
 
       - name: Add build summary
         if: always()
         run: |
-          echo "- **Device Name:** ${{ matrix.esp32_variant }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **ESP32 Variant:** ${{ matrix.esp32_variant }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Toolchain:** ${{ matrix.toolchain }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Config File:** ${{ env.YAML_FILE }}" >> $GITHUB_STEP_SUMMARY
           echo "- **ESPHome Version:** ${{ env.ESPHOME_VERSION }}" >> $GITHUB_STEP_SUMMARY
 
   adaptive_lighting_ok:
