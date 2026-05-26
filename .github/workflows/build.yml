@@ -12,6 +12,9 @@ on:
     - cron: '0 4 * * 3' # Every Wednesday at 04:00 UTC
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   esphome_version:
     name: Get ESPHome Version
