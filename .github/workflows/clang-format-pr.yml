@@ -55,8 +55,8 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v8
         with:
-          branch: ci/clang-format/${{ github.base_ref || github.ref_name }}
-          base: ${{ github.base_ref || github.ref_name }}
+          branch: ci/clang-format/${{ github.head_ref || github.ref_name }}
+          base: ${{ github.head_ref || github.ref_name }}
           commit-message: "chore: clang-format"
           title: "chore: clang-format"
           body: |
