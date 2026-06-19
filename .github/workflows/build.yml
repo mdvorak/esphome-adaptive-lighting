@@ -22,7 +22,7 @@ jobs:
     outputs:
       tag: ${{ steps.get_tag.outputs.tag }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Get ESPHome image tag from Dockerfile
         id: get_tag
@@ -60,7 +60,7 @@ jobs:
       ESPHOME_ESP_IDF_PREFIX: ${{ github.workspace }}/.esphome/idf
       IDF_CCACHE_ENABLE: 1
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set local component path
         uses: mikefarah/yq@v4
