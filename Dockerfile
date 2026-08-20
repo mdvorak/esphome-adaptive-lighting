@@ -1,2 +1,2 @@
-FROM ghcr.io/esphome/esphome:2026.7.4
+FROM ghcr.io/esphome/esphome:2026.8.0
 # This is a dummy dockerfile to trick dependabot into updating the version
