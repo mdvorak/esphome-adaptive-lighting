@@ -54,9 +54,8 @@ void AdaptiveLightingComponent::setup() {
     light_->add_new_remote_values_callback([this]() { on_light_remote_values_update(); });
 #endif
   }
-  if (this->restore_mode == switch_::SWITCH_ALWAYS_ON) {
-    this->publish_state(true);
-  }
+  // Always publish an initial state, so the switch is never reported as unknown
+  this->publish_state(this->get_initial_state_with_restore_mode().value_or(false));
 
   // Register callback for time synchronization events
   if (sun_ != nullptr) {
