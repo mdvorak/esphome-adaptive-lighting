@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.2.0...v1.2.1) (2026-10-21)
+
+
+### Bug Fixes
+
+* always publish initial switch state on setup ([4f357b1](https://github.com/mdvorak/esphome-adaptive-lighting/commit/4f357b1ef4a3664a27ca41e008661aad85987aec))
+
 ## [1.2.0](https://github.com/mdvorak/esphome-adaptive-lighting/compare/v1.1.1...v1.2.0) (2026-05-22)
 
 
